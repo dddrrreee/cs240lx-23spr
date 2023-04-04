@@ -23,110 +23,78 @@ the labs once before in cs240lx or cs340lx many ideas are research-paper
 level and how to best implement them is still up in the air, so the only
 constant will be change.
 
-----------------------------------------------------------------------------
-##### low level code module
+Currently lookig at roughly ten projects, two labs per project:
 
-  - [1-dynamic-code-gen](1-dynamic-code-gen/README.md): you'll learn
+  1. [1-dynamic-code-gen](1-dynamic-code-gen/README.md): you'll learn
     how to generate executable machine code at runtime and how to 
     use this trick to do neat stuff.  
 
-    Possible things to build:
-      - generate exact cycle write schedules where you give a set
-        of reads and writes and the cycle they should occur at.
-      - do real generic routines in C where you "curry" a parameter
-        into a runtime thunk that calls the original routine.  this
-        for example lets you replace `int foo(a,b,c)` with `int fp()` and, thus
-        have a set of data structure routines that can work on routines
-        that take no parameters and return an `int` rather than needing to 
-        make (for example) an iterator routine for each different 
-        data-structure.
-      - simple packet filter JIT engine --- these are being heavily used
-        in linux for monitoring.  could do BPF (what they use) or our own.
-      - 
 
-
-  - speed stuff [below]: open question: can be enable caching when no
-    VM?  Not sure where to place this.
-
-MAYBE:
-  - linker script hacks.
-  - bootloader that can copy itself out of the way + use this to 
-    make a network bootloader.
-  - a runtime code gen system that can work on riscv, x86, arm,
-    etc.
-
----------------------------------------------------------------------
-### Simple binary-analysis tools.
-
-As we showed in cs140E, you can use debugging hardware to make powerful
-binary analysis tools that normally take on the order of 1MLOC of code.
-
-We will build the following:
-
-  - [Trap-based Eraser]: Eraser is a famous race detection tool that
-    uses binary-rewriting to instrumenting every load and store and
-    flagging if a thread accessed the memory with inconsistent set of
-    locks (its *lockset*).  Doing binary rewriting is hard.  By using
-    debugging hardware and fast traps we can build a version in a few
-    hundred lines of code: simply trap on every load and store and
-    implement the lockset algorithm.
-  
-  - [Trap-based memory checking]: Valgrind dynamically rewrites binaries
-    so that it can instruments every load and store.  Dynamically
-    rewriting binary is harder in some ways than the static rewriting
-    that Eraser does, which was already really hard.  You will use your
-    traps to implement a much simpler method:
-
-    - Mark all heap memory as unavailable.
-    - In the trap handler, determine if the faulting address is in bounds.
-    - If so: do the load or store and return.
-    - If not: give an error.
-
-    Given how fast our traps are, and how slow valgrind is, your approach
-    may actually be faster.
+  2. Tools using debugging hardware.  
+     - [Trap-based Eraser]: Eraser is a famous race detection tool that
+       uses binary-rewriting to instrumenting every load and store and
+       flagging if a thread accessed the memory with inconsistent set of
+       locks (its *lockset*).  Doing binary rewriting is hard.  By using
+       debugging hardware and fast traps we can build a version in a few
+       hundred lines of code: simply trap on every load and store and
+       implement the lockset algorithm.
+     
+     - [Trap-based memory checking]: Valgrind dynamically rewrites binaries
+       so that it can instruments every load and store.  Dynamically
+       rewriting binary is harder in some ways than the static rewriting
+       that Eraser does, which was already really hard.  You will use your
+       traps to implement a much simpler method:
    
-    To get around the need for *referents* (that track which block of
-    memory a pointer is supposed to point to) you'll use randomized
-    allocation and multiple runs.
+          - Mark all heap memory as unavailable.
+          - In the trap handler, determine if the faulting address is in bounds.
+          - If so: do the load or store and return.
+          - If not: give an error.
+      
+       Given how fast our traps are, and how slow valgrind is, your approach
+       may actually be faster.
+      
+       To get around the need for *referents* (that track which block of
+       memory a pointer is supposed to point to) you'll use randomized
+       allocation and multiple runs.
 
-  - [Thorough conconcurrency checking]: we will use traps to build a simple,
-    very thorough lock-free checking tool.  Given a lock free algorithm and
-    two threads:
+     - [Thorough conconcurrency checking]: we will use traps to build a simple,
+       very thorough lock-free checking tool.  Given a lock free algorithm and
+       two threads:
 
-    - Mark its memory as inaccessible.
-    - On each resulting fault, do the instruction but then context switch
-      to another thread.
-    - At the end, record the result.
-    - Then rerun the thread code from a clean initial state without doing
-      context switches.   For the type of code we run: Any difference
-      is an error.
+        - Mark its memory as inaccessible.
+        - On each resulting fault, do the instruction but then context switch
+          to another thread.
+        - At the end, record the result.
+        - Then rerun the thread code from a clean initial state without doing
+          context switches.   For the type of code we run: Any difference
+          is an error.
 
-    To be really fancy, we can buffer up the stores that are done and
-    then try all possible legal orders of them when the other thread
-    does a load.  This checker should find a lot of bugs.
+       To be really fancy, we can buffer up the stores that are done and
+       then try all possible legal orders of them when the other thread
+       does a load.  This checker should find a lot of bugs.
 
-    To speed up checking we use state hashing to prune out redundant
-    states: at each program counter value, hash all previous stores,
-    if we get the same hash as before, we know we will compute the same
-    results as a previous and can stop exploring.
+       To speed up checking we use state hashing to prune out redundant
+       states: at each program counter value, hash all previous stores,
+       if we get the same hash as before, we know we will compute the same
+       results as a previous and can stop exploring.
 
-  - [Possible: Volatile cross-checking] A common, nasty problem in
-    embedded code is that programs code use raw pointers to manipulate
-    device memory, but either the programmer does not use `volatile`
-    correctly or the compiler has a bug.  We can detect such things with
-    a simple hack:
+    - [Possible: Volatile cross-checking] A common, nasty problem in
+      embedded code is that programs code use raw pointers to manipulate
+      device memory, but either the programmer does not use `volatile`
+      correctly or the compiler has a bug.  We can detect such things with
+      a simple hack:
 
-    - We know that device references should remain the same no matter
-      how the code is compiled.
-    - So compile a piece of code multiple ways: with no optimization, `-O`,
-    `-O2`, with fancier flags, etc.
-    - Then run each different version, using ARM domain tricks to trace
-      all address / values that are read and written.
-    - Compare these: any difference signals a bug.
+      - We know that device references should remain the same no matter
+        how the code is compiled.
+      - So compile a piece of code multiple ways: with no optimization, `-O`,
+      `-O2`, with fancier flags, etc.
+      - Then run each different version, using ARM domain tricks to trace
+        all address / values that are read and written.
+      - Compare these: any difference signals a bug.
 
-    This tool would have caught many errors we made when designing cs107e;
-    some of them took days to track down.
-
+      This tool would have caught many errors we made when designing cs107e;
+      some of them took days to track down.
+  
    - There is a ton of other possible tools.  Might do more.
 
 ---------------------------------------------------------------------
