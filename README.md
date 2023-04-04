@@ -3,7 +3,7 @@
 
 tl;dr index:
 
-  - [This is a lab class and here are the labs](./labs/README.md).
+  - [This is a lab class and here are the labs](./labs/).
   - [Course website](https://github.com/dddrrreee/cs240lx-23spr).
   - [Course newsgroup](https://github.com/dddrrreee/cs240lx-23spr).
   - To get the repository: 
