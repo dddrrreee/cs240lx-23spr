@@ -1,4 +1,4 @@
-## Labs.
+## 240lx Labs.
 
 This is a partial set of tentative labs.  They've been split into
 ones we'll almost certainly do and those that we might do depending
