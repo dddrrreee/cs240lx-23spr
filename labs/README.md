@@ -2,8 +2,10 @@
 
 This is a partial set of possible labs.  They've been split into ones
 we'll almost certainly do and those that we might do depending on
-interest.  I'm going through old notes and TODO files pulling in more,
-so check back :)
+interest.  
+In either case, these are a ***tentative*** set of labs.  They will
+change!  Some will get dropped.  Some will get added.  All will get
+modified significantly.
 
 Last year's repo has a ton of labs if you look through the subdirectories:
 it's worth goig through these and letting us know which seem most
@@ -13,10 +15,6 @@ interesting.
    - There are way more possible labs than class slots so if you can
      please look through these before the first class and see which
      you prefer.
-
-In either case, these are a ***tentative*** set of labs.  They will
-change!  Some will get dropped.  Some will get added.  All will get
-modified significantly.
 
 This is the third offering of the class.  While we have done many of
 the labs once before in cs240lx or cs340lx many ideas are research-paper
