@@ -12,5 +12,4 @@ PROGS += 0-ident-dcg.c
 PROGS += 1-self-modifying.c
 PROGS += 4-derive-pc-reg.c
 
-# include $(CS240LX_2023_PATH)/libpi/mk/Makefile.template
 include $(CS140E_2023_PATH)/libpi/mk/Makefile.template
