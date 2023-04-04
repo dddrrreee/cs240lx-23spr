@@ -1,19 +1,18 @@
 ## Labs.
 
-This is a partial set of possible labs.  They've been split into ones
-we'll almost certainly do and those that we might do depending on
-interest.  
-In either case, these are a ***tentative*** set of labs.  They will
-change!  Some will get dropped.  Some will get added.  All will get
-modified significantly.
+This is a partial set of possible labs.  They've been split into
+ones we'll almost certainly do and those that we might do depending
+on interest.  In either case, these are a ***tentative*** set of labs.
+They will change!  Some will get dropped.  Some will get added.  All will
+get modified significantly.
 
-Last year's repo has a ton of labs if you look through the subdirectories:
-it's worth goig through these and letting us know which seem most
-interesting.
-   - [cs240lx and cs340lx labs](https://github.com/dddrrreee/cs240lx-22spr/tree/main/labs)
+Last year's repo [has a ton of
+labs](https://github.com/dddrrreee/cs240lx-22spr/tree/main/labs)
+if you look through the subdirectories.  It's worth going through these
+and letting us know which seem most interesting.
 
    - There are way more possible labs than class slots so if you can
-     please look through these before the first class and see which
+     please look through these after the first class and see which
      you prefer.
 
 This is the third offering of the class.  While we have done many of
@@ -21,7 +20,7 @@ the labs once before in cs240lx or cs340lx many ideas are research-paper
 level and how to best implement them is still up in the air, so the only
 constant will be change.
 
-Currently lookig at roughly ten projects, two labs per project.  
+Currently looking at roughly ten projects, two labs per project.  
 Some rough grouping of projects:
 
   1. Low level hacks. A set of projects that do low level code hacking
@@ -122,13 +121,13 @@ Some rough grouping of projects:
        This tool would have caught many errors we made when designing cs107e;
        some of them took days to track down.
 
-   3. Device code.  140e was packed enough that we didnt' do many devices,
+   3. Device code.  140e was packed enough that we didn't' do many devices,
       which are where alot of the fun is.  We'll do a bunch of fun 
       devices across the quarter.
 
       Writing drivers from scratch gives a better feel for hardware.
       Device driver code makes up 90+% of OS code, so it makes sense to
-      learn how to write this kind of code.   We'l likely do some amount
+      learn how to write this kind of code.   We'll likely do some amount
       of building a fake-pi implementation to check this code.
 
       - ws2812b: you'll write nanosecond accurate
@@ -145,7 +144,7 @@ Some rough grouping of projects:
         To help testing, you'll also write a driver for the popular ADS1115
         analog-to-digital converter (also from scratch).  Analog devices
         (that output a varying voltage) are typically the cheapest ones.
-        Unfornately your r/pi cannot take their input directly.  We will
+        Unfortunately your r/pi cannot take their input directly.  We will
         use your I2C driver to read inputs from a microphone and control
         the light array with it.
 
@@ -173,7 +172,7 @@ Some rough grouping of projects:
         fine. One thing I would love to get out of this class is having
         the first set of 140E labs ported to a bunch of other chips.
         The tentative plan is to port to a risc-v and potentially the pi
-        pico chip, and get the initial 140e labs running with a verson
+        pico chip, and get the initial 140e labs running with a version
         of our bootloader.
 
       - A clean FAT32 read/write implementation.
