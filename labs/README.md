@@ -19,7 +19,7 @@ the labs once before in cs240lx or cs340lx many ideas are research-paper
 level and how to best implement them is still up in the air, so the only
 constant will be change.
 
-Currently looking at roughly ten projects, two labs per project.  
+Currently looking at roughly ten projects, two labs per project.
 Some rough grouping of projects:
 
   1. Low level hacks. A set of projects that do low level code hacking
