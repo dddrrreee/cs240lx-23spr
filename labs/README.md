@@ -1,12 +1,11 @@
 ## Labs.
 
-This is a partial set of possible labs.  They've been split into
+This is a partial set of tentative labs.  They've been split into
 ones we'll almost certainly do and those that we might do depending
-on interest.  In either case, these are a ***tentative*** set of labs.
-They will change!  Some will get dropped.  Some will get added.  All will
-get modified significantly.
+on interest.  In either case, they will change!  Some will get dropped.
+Some will get added.  All will get modified significantly.
 
-Last year's repo [has a ton of
+[Last year's repo has a ton of
 labs](https://github.com/dddrrreee/cs240lx-22spr/tree/main/labs)
 if you look through the subdirectories.  It's worth going through these
 and letting us know which seem most interesting.
