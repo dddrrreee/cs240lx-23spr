@@ -78,24 +78,24 @@ Currently lookig at roughly ten projects, two labs per project:
        if we get the same hash as before, we know we will compute the same
        results as a previous and can stop exploring.
 
-    - [Possible: Volatile cross-checking] A common, nasty problem in
-      embedded code is that programs code use raw pointers to manipulate
-      device memory, but either the programmer does not use `volatile`
-      correctly or the compiler has a bug.  We can detect such things with
-      a simple hack:
+     - [Possible: Volatile cross-checking] A common, nasty problem in
+       embedded code is that programs code use raw pointers to manipulate
+       device memory, but either the programmer does not use `volatile`
+       correctly or the compiler has a bug.  We can detect such things with
+       a simple hack:
 
-      - We know that device references should remain the same no matter
-        how the code is compiled.
-      - So compile a piece of code multiple ways: with no optimization, `-O`,
-      `-O2`, with fancier flags, etc.
-      - Then run each different version, using ARM domain tricks to trace
-        all address / values that are read and written.
-      - Compare these: any difference signals a bug.
-
-      This tool would have caught many errors we made when designing cs107e;
-      some of them took days to track down.
+       - We know that device references should remain the same no matter
+         how the code is compiled.
+       - So compile a piece of code multiple ways: with no optimization, `-O`,
+       `-O2`, with fancier flags, etc.
+       - Then run each different version, using ARM domain tricks to trace
+         all address / values that are read and written.
+       - Compare these: any difference signals a bug.
+ 
+       This tool would have caught many errors we made when designing cs107e;
+       some of them took days to track down.
   
-   - There is a ton of other possible tools.  Might do more.
+    - There is a ton of other possible tools.  Might do more.
 
 ---------------------------------------------------------------------
 ##### Speed
