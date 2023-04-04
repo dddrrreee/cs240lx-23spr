@@ -7,6 +7,8 @@ int main() {
 
 	i = 10;
 	p[1] = 10;
+
+    // what happens here?
 	if(i >= 10 | p[i] != 10)
 		printf("not found\n");
 	else

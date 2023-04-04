@@ -5,6 +5,6 @@
 
 int main(void)
 {
-        printf("Macros rule %d\n", SIX * NINE);
-	return 0;
+    printf("Macros rule %d\n", SIX * NINE);
+    return 0;
 }

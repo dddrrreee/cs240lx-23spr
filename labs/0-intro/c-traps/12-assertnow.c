@@ -4,7 +4,6 @@
 
 int main() { 
 	AssertNow(0==1);
-
 	BUILD_BUG_ON(0==0);
 	BUILD_BUG_ON(1==0);
 }

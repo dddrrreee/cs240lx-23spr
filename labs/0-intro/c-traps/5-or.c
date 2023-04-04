@@ -7,6 +7,7 @@ int main() {
 	int p[10];
 	int i = 100000;
 
+    // what does this print?
 	if(foo() || bar())
 		printf("true\n");
 	else
