@@ -48,7 +48,7 @@ void notmain() {
 	fp = (typeof(fp))add1_code;
 
 	printk("plus1(10) = %d, fp(10) =%d\n", add_1(10), fp(10));
-	printk("plus1(20) = %d, fp(20) =%d\n", add_1(10), fp(20));
+	printk("plus1(20) = %d, fp(20) =%d\n", add_1(20), fp(20));
 
     // simple testing
     for(unsigned x = 0; x < N; x++)

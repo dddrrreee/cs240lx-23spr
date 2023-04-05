@@ -11,5 +11,6 @@ PROGS := 2-bug-self-modify.c
 PROGS += 0-ident-dcg.c
 PROGS += 1-self-modifying.c
 PROGS += 4-derive-pc-reg.c
+PROGS += 5-derive-add.c
 
 include $(CS140E_2023_PATH)/libpi/mk/Makefile.template
