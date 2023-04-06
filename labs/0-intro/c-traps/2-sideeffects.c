@@ -17,7 +17,7 @@ int main() {
 
 #endif
 
-#if 0
+#if 1
     printf("part 2: what happened?\n");
     if(foo)
         printf("foo != 0\n");

@@ -34,15 +34,16 @@ int main() {
 
 
 
-#if 0
     printf("-----------------------------------------\n");
     printf("part4: value of a,b?\n");
 
 	a = 1; b = 1;
-	a-- - --b;
+#if 0
     printf("expr=%d\n", a-- - --b);
 	// printf("a=%d, b=%d\n", a, b);
+#endif
 
+#if 1
 	b-1;
 	b+1;
 	b-1;
@@ -72,7 +73,7 @@ int main() {
 	printf("a = %d\n", a);
 #endif
 
-#if 0
+#if 1
     printf("-----------------------------------------\n");
     printf("part6: what is b?\n");
 	a = 2;  b = 20;

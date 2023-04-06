@@ -2,7 +2,7 @@
 
 CC = gcc
 CFLAGS = -O0 -MMD
-# CFLAGS += -Wall
+#CFLAGS += -Wall
 
 #SRC += 0-main.c 
 SRC = 0-side-effects.c

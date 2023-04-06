@@ -11,8 +11,8 @@ int main( void ) {
   	int b = sizeof( ++a );
 	printf("a=%d,b=%d\n", a,b);
 
-#if 0
-    printf("what does this print?\n");
+#if 1
+    printf("c what does this print?\n");
 	int c = sizeof foo(); 
 	printf("a=%d,c=%d\n", a,c);
 #endif

@@ -9,7 +9,7 @@ int main() {
     else
         printf("WAT!?!\n");
 
-#if 0
+#if 1
     // what happened??
     b = 1000000;
     if(a < b < c)
