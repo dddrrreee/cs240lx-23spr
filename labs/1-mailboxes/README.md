@@ -72,7 +72,7 @@ confusingly described message format.
 The first part is fairly clear:
 
 <p align="center">
-  <img src="images/msg-format.png" width="450" />
+  <img src="images/msg-format.png" width="550" />
 </p>
 
 For our get serial message the words in the message will be as followed:
