@@ -75,7 +75,8 @@ The first part is fairly clear:
   <img src="images/msg-format.png" width="550" />
 </p>
 
-For our get serial message the words in the message will be as followed:
+For our "get serial" message we'll need a 8 word message (calculated
+below) where each word in the message `msg` will be as follows:
 
   - `msg[0] = 4*8`: The first 32-bit word in the message contains the 
      size of tte message in bytes.   For us: as you'll see the 
