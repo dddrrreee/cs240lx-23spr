@@ -88,18 +88,19 @@ below) where each word in the message `msg` will be as follows:
     `0x80000000` (success) or `0x80000001` (error).
 
   - We then fill in the tag message.
-     - `msg[2]= 0x00010004` (our tag).
+     - `msg[2]= 0x00010004` (our tag: specified by the doc).
      - `msg[3] = 8`: the response size in bytes: the serial
-       is two 32-bit words.
-     - `msg[4] = 0`: the document states we write 0 for a request.
+       is two 32-bit words so this is 8 bytes.
+     - `msg[4] = 0`: the document states we write 0 (always) for a request.
        After a sucessesful send and reply, `msg[4]` should hold the
-       constant `0x80000008` which is has bit 31 set (as stated in the
-       doc) and the response size 8 (from the doc). (i.e., `(1<<31)
+       constant `0x80000008` which is the result of setting bit 31 to 
+       1 (as stated in the doc) and or'ing this with the 
+       the response size (again: 8, from the doc). (i.e., `(1<<31)
        | 8)`).
      - `msg[5] = 0`: since the reply message is written into our send
-       buffer (it's just the way it is) we need to pad our sent message
-      so it contains enough space.
-     - `msg[6] = 0`: the second word of the reply.
+       buffer `msg` we need to pad our message so it contains enough space
+       for the reply
+     - `msg[6] = 0`: again, padding for the second word of the reply.
   - `msg[7] = 0`: The final word is `0`.  
 
 To clean things up some:
