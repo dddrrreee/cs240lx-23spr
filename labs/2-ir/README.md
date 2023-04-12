@@ -264,27 +264,82 @@ A possibly better strategy:
 ----------------------------------------------------------------
 ###  Part 3: simple networking
 
-For this lab you're going to use a TSOP3223 infrared (IR) receiver and
-a IR led to communicate with your second pi.
+[This is kinda rough, sorry!]
+
+For this part you'll make a "loopback" network where your pi uses an IR LED
+to transmit data and the IR receiver (above) to receive it.  Sending and 
+receiving to yourself is easier in many ways since (1) there are less moving
+parts and (2) you know what the expected values are so can debug more easily.
+
+##### What to do:
+ 
+The checked in code uses two threads to send and receive.  The sender
+makes the IR receiver go low for either 500ms or 2000ms (2 seconds)
+and the receiver records how long.     You should make a copy of this
+code and implement a simple software UART (recall you have an old 140e
+lab that does this).  Show you can print `hello world!`
+  - After this works, you should be able to send "hello
+    world" to another pi.  (It's even easier since there's no tricky
+    scheduling for loopback.)
+
+Extensions:
+  - How fast a baudrate can you hit?  This is an interesting puzzle: all the code
+    is yours, the problem is simple to understand, but the goal is tricky 
+    and in ways that help you understand hardware more deeply.
+  - Have two pi's send messages back and forth.
+  - Use your uart to send code to anther pi.
+
+Details are below.
+
+##### Background.
+
+The trick here is that to send we will need to bit-bang the IR LED (turn
+it off and on at specific cycle counts) while simulatneously reading its
+value using the receiver.  And unlike fancier devices such as UART or
+NRF, the GPIO pins that receive do not have any kind of buffering ---
+if we aren't waiting for the signal when it comes in, it evaporates.
+Thus, if we use our naive approach of busy-waiting, spinning in a loop
+until a deadline is reached, the receiver won't run in time.
+
+Instead we'll use a simple trick to interleave the two pieces of code:
+we'll put each in their own thread, and whenever one busy-waits or calls
+a delay, we call `rpi_yield()` to run the other. This will work as long as:
+  1. The context switching overhead is small enough for our timing requirements.
+  2. We do not forget any yield.
+  3. Yield is called often enough.
+
+There's actually several ways to structure such code. We won't do them
+today, but maybe on thursday.  The loopback puzzle is a nice flashlight 
+to illuminate since its small enough to have minimal detail occluding
+the issues, but fancy enough that it shows off the real tradeoffs.
+  1. You can use interrupts.   You can either have a timer
+     interrupt that runs periodically at 38khz and sets the LED high or
+     low or have a GPIO interrupts triggered when the input pin switches.
+  2. You can replace threads with run to completion routines (or events)
+     that don't do any context switching at all but manually record their
+     state in local memory.  This can be faster than threads with less
+     moving parts --- so potentially hitting a higher buadrate --- but
+     the code is uglier.
 
 #### Simple transmit for LED
 
-Using the IR led (blue, translucent) you will send a signal to communicate
-with the TSOP.
- - You don't just turn the LED on and off.  The TSOP looks for a specific signal
-   of off-on sent at a specific Khz and rejects everything else.
+How to transmit using the IR led (blue, translucent):
+ - Unlike our normal LED usage, you can't send a 0 by leaving the LED off and
+   send 1 by turning it on.
+ - The TSOP looks for a specific signal of off-on sent at a specific Khz and 
+   rejects everything else.
  - So look in the datasheet for the frequency it expects.
  - Compute the microseconds for on-off.
+ - To send a 0 for T useconds: flip the LED off and on at the right frequence
+   for T useconds.
 
-Compute it as:
+Compute the period  as:
 
     usec_period = 1./freq * 1000. * 1000.
     usec on-off = usec_period / 2.
 
 Alternate sending this signal and show you can blink your second pi's LED.
 
-#### Simple transmit for UART
+The checked-in code does this for you (`code/2-thread-driver.c`) but it
+doesn't take that long to write it yourself.
 
-Re-purpose your UART protocol so that you can send arbitrary bytes using
-the TSOP.  Show you can print `hello world!`   Have the two pi's send a
-counter back and forth.
