@@ -208,60 +208,7 @@ NOTES:
       pretty quickly, so make sure your code does not get confused.
 
 ----------------------------------------------------------------
-#  Part 2: interrupts.
-
-In general, if we use remotes its to very-occasionally control a device
-that is pretty busy doing something else.  In this case, it's natural
-to use interrupts (note: this is hard if we care about very fine timing;
-there are other approaches).
-
-If you need a refresher:
-  - lab 8 in cs140e goes over GPIO interrupts.
-  - I checked in a staff version `staff-objs/gpio-int.o` that you can link in
-    (by modifying `put-your-src-here.mk`) and use.
-  - If you have it, you can also use your own code.
-
-
-The relevant functions:
-
-    // include/gpio.h
-
-    // p97 set to detect rising edge (0->1) on <pin>.
-    // as the broadcom doc states, it  detects by sampling based on the clock.
-    // it looks for "011" (low, hi, hi) to suppress noise.  i.e., its triggered only
-    // *after* a 1 reading has been sampled twice, so there will be delay.
-    // if you want lower latency, you should us async rising edge (p99)
-    void gpio_int_rising_edge(unsigned pin);
-
-    // p98: detect falling edge (1->0).  sampled using the system clock.
-    // similarly to rising edge detection, it suppresses noise by looking for
-    // "100" --- i.e., is triggered after two readings of "0" and so the
-    // interrupt is delayed two clock cycles.   if you want  lower latency,
-    // you should use async falling edge. (p99)
-    void gpio_int_falling_edge(unsigned pin);
-
-    // p96: a 1<<pin is set in EVENT_DETECT if <pin> triggered an interrupt.
-    // if you configure multiple events to lead to interrupts, you will have to
-    // read the pin to determine which caused it.
-    int gpio_event_detected(unsigned pin);
-
-    // p96: have to write a 1 to the pin to clear the event.
-    void gpio_event_clear(unsigned pin);
-
-
-Simple strategy:
-   1. enable rising edge (from 0 to 1).
-   2. In the interrupt handler, just process the entire remote transmission.
-   3. This locks up the pi during this, but in the case that you are going to
-      do a major phase shift, this is ok.
-
-A possibly better strategy:
-   1. Detect each edge and put the result in a queue.
-   2. When you detect a stop, convert the edges to a value.
-   3. This is more complicated, but lets you spend not-much time in the handler.
-
-----------------------------------------------------------------
-###  Part 3: simple networking
+###  Part 2: simple uart networking
 
 [This is kinda rough, sorry!]
 
@@ -341,4 +288,57 @@ Alternate sending this signal and show you can blink your second pi's LED.
 
 The checked-in code does this for you (`code/2-thread-driver.c`) but it
 doesn't take that long to write it yourself.
+
+----------------------------------------------------------------
+#  extension: interrupts.
+
+In general, if we use remotes its to very-occasionally control a device
+that is pretty busy doing something else.  In this case, it's natural
+to use interrupts (note: this is hard if we care about very fine timing;
+there are other approaches).
+
+If you need a refresher:
+  - lab 8 in cs140e goes over GPIO interrupts.
+  - I checked in a staff version `staff-objs/gpio-int.o` that you can link in
+    (by modifying `put-your-src-here.mk`) and use.
+  - If you have it, you can also use your own code.
+
+
+The relevant functions:
+
+    // include/gpio.h
+
+    // p97 set to detect rising edge (0->1) on <pin>.
+    // as the broadcom doc states, it  detects by sampling based on the clock.
+    // it looks for "011" (low, hi, hi) to suppress noise.  i.e., its triggered only
+    // *after* a 1 reading has been sampled twice, so there will be delay.
+    // if you want lower latency, you should us async rising edge (p99)
+    void gpio_int_rising_edge(unsigned pin);
+
+    // p98: detect falling edge (1->0).  sampled using the system clock.
+    // similarly to rising edge detection, it suppresses noise by looking for
+    // "100" --- i.e., is triggered after two readings of "0" and so the
+    // interrupt is delayed two clock cycles.   if you want  lower latency,
+    // you should use async falling edge. (p99)
+    void gpio_int_falling_edge(unsigned pin);
+
+    // p96: a 1<<pin is set in EVENT_DETECT if <pin> triggered an interrupt.
+    // if you configure multiple events to lead to interrupts, you will have to
+    // read the pin to determine which caused it.
+    int gpio_event_detected(unsigned pin);
+
+    // p96: have to write a 1 to the pin to clear the event.
+    void gpio_event_clear(unsigned pin);
+
+
+Simple strategy:
+   1. enable rising edge (from 0 to 1).
+   2. In the interrupt handler, just process the entire remote transmission.
+   3. This locks up the pi during this, but in the case that you are going to
+      do a major phase shift, this is ok.
+
+A possibly better strategy:
+   1. Detect each edge and put the result in a queue.
+   2. When you detect a stop, convert the edges to a value.
+   3. This is more complicated, but lets you spend not-much time in the handler.
 
