@@ -30,8 +30,9 @@ enum {
     out_pin = 20 
 };
 
-// can either use usec or cycles.
-// 38khz cycles --- so full transition up and down 38*1000 times per sec
+// ir receiver:
+//    38khz cycles --- so full transition up and down 38*1000 times per sec
+// compute the number of cycles.
 //
 // usec = (1000*1000usec) / (38*1000) = 26.31
 // cycles = (700*1000*1000) / (38*1000) = 18421.0 / 2 = 9210
