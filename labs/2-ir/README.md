@@ -85,8 +85,7 @@ Checkoff:
 ### Background: how an IR remote sends values
 
 Optional background reading:
- - [A nice clear writeup of IR
-   protocol]:(http://irq5.io/2012/07/27/infrared-remote-control-protocols-part-1/)
+ - [A nice clear writeup of IR protocol](http://irq5.io/2012/07/27/infrared-remote-control-protocols-part-1/)
 
 For the remotes we use they send a 0 or 1 bit by sending 1 for differing
 amounts of time.  They seperate the bits by sending 0 for a fixed amount
