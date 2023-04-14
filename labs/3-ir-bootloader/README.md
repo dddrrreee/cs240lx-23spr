@@ -160,6 +160,7 @@ for this).
 I used a dumb protocol for sending packets:
 
   1.  Sender, header:
+
      - `send32(PKT_HDR)` (see the enum in `ir-put-get.c`).
      - `send32(hash)`: where hash is:
 
