@@ -37,7 +37,7 @@ There's tons of extensions:
   - Do the next lab to let your copy code anywhere and run it.
 
 
-### Part 1.  Protocol.
+### Part 1.  IR Protocol.
 
 <p align="center">
   <img src="images/tsop-restrictions.png" width="950" />
@@ -154,7 +154,48 @@ When this works the ping-pong test should work.   Another pi should be
 able to snoop on the network and see (you'll have to modify the code
 for this).
 
-### Part 3. sending code.
+### Part 3. sending packets.
+
+
+I used a dumb protocol for sending packets:
+
+  1.  Sender, header:
+     - `send32(PKT_HDR)` (see the enum in `ir-put-get.c`).
+     - `send32(hash)`: where hash is:
+
+        uint32_t hash = fast_hash_inc32(data, nbytes, 0);
+
+     - `send(nbytes)`
+
+  2. Receiver, get header:
+
+    - Gets the three words.
+    - Send ack: `send32(PKT_HDR_ACK)`.
+
+  3. Sender, data:
+    - `send32(PKT_DATA)`
+    - send the data (using `ir_put8`).
+
+  4. Receiver:
+    - Gets `PKT_DATA`
+    - Gets the data.
+    - computes the checksum and verifies it.
+    - `send(PKT_DATA_ACK)`
+
+  5. Sender: if receives `PKT_DATA_ACK` is done.
+
+
+### Part 4. sending code.
+
+If your packet code works, the bootloader should work too:
+  - the code is `small-prog/hello.bin` translated into a byte array 
+    (see `small-prog/code-hello.h`) with a header.
+  - We send it using `ir_send_pkt` and receive it using `ir_recv_pkt`.
+  - The receiver checks the header and then jumps to the code.
+
+There's a ton of extensions to make it faster.
+
+#### What the code looks like.
 
 As a first intermediate hack we'll send code similar to how we did
 in the FAT32 and equiv process lab:
