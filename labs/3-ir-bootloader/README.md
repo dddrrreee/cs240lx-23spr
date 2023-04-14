@@ -45,15 +45,26 @@ There's tons of extensions:
     calls for the routines (so they don't need to be included).  Or 
     since the server "bootloader" has libpi included, pass an array
     with the routine addresses to the client.
+
   2. Tune your protocol so its faster.  I'm super curious how fast we
-    can make it.  Right now it's ridiculously slow.  One possible
-    idea is sending more bits per off-on (do on for 100 usec for
-    0, 110 usec for 1, 120usec for 2 etc).  
+     can make it.  Right now it's ridiculously slow.  
 
-    Also, perhaps flip the polarity since we can be off for arbitrary
-    amounts of time.
+     One issue with speed is that we can only have 800 bursts per second.
+     You can get around this somewhat by sending more bits per burst depending
+     on how much error you have per reading.  Assuming we have 10usec accuracy.
+     So send a 0 by cycling for 100 usec, send a 1 by cycling for 110 usec,
+     etc.
 
-  3. Do the next lab to let your copy code anywhere and run it.
+     Likely its better to flip the polarity since we can be off for arbitrary
+     amounts of time without issue, but cannot do arbitrary length 
+     bursts.
+
+  3. Make a simple `net_gpio_write` routine so that you can recompile your 
+     blink code and have it send on and off remotely.  Potentially:
+     rewrite the blink.bin binary so to insert these calls.
+
+  4. Do the next lab to let your copy code anywhere and run it.
+
 
 ### Part 1.  IR Protocol.
 
