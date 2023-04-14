@@ -40,7 +40,7 @@ There's tons of extensions:
 ### Part 1.  Protocol.
 
 <p align="center">
-  <img src="images/tsop-restrictions.png" width="750" />
+  <img src="images/tsop-restrictions.png" width="950" />
 </p>
 
 As you can see from the table, there are a bunch of restrictions we
