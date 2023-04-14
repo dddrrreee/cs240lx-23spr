@@ -37,6 +37,14 @@ There's tons of extensions:
   - Do the next lab to let your copy code anywhere and run it.
 
 
+### Checkoff
+
+You should be able to:
+  - Pass `3-ping-pong-word.c`
+  - Bootload the hello program (`code/5-ir-bootloader.c`).
+  - Bootload the hello program to someone else's pi.  (Coolest is
+    severa people's at once.)
+
 ### Part 1.  IR Protocol.
 
 <p align="center">
