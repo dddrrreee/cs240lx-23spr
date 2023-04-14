@@ -1,4 +1,4 @@
-SUBDIRS= # 00-hello code
+SUBDIRS= code-gen small-prog code
 
 .PHONY: all clean
 all check clean: $(SUBDIRS)
