@@ -1,10 +1,6 @@
 # list out the driver program source 
-PROGS := 1-keypress.c
-PROGS := 0-dump-driver.c 
-PROGS := 2-thread-driver.c
-PROGS := 3-sw-uart.c
-PROGS := 1-hello.c
 PROGS := 2-ping-pong-byte.c
+PROGS := 1-hello.c
 
 COMMON_SRC = ir-put-get.c 
 
