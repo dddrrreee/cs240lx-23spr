@@ -30,20 +30,30 @@ Outline:
 
   4. You should then be able to send code and jump to it.
 
-There's tons of extensions:
-  - Play tricks to make the binary smaller. For example, use system
-    calls for the routines (so they don't need to be included)
-  - Tune your protocol so its faster.
-  - Do the next lab to let your copy code anywhere and run it.
-
-
 ### Checkoff
 
 You should be able to:
-  - Pass `3-ping-pong-word.c`
+  - Pass `code/3-ping-pong-word.c`
   - Bootload the hello program (`code/5-ir-bootloader.c`).
   - Bootload the hello program to someone else's pi.  (Coolest is
-    severa people's at once.)
+    several people's at once!  IR is slow, but on the plus side it
+    is broadcast.)
+
+There's tons of extensions:
+
+  1. Play tricks to make the binary smaller. For example, use system
+    calls for the routines (so they don't need to be included).  Or 
+    since the server "bootloader" has libpi included, pass an array
+    with the routine addresses to the client.
+  2. Tune your protocol so its faster.  I'm super curious how fast we
+    can make it.  Right now it's ridiculously slow.  One possible
+    idea is sending more bits per off-on (do on for 100 usec for
+    0, 110 usec for 1, 120usec for 2 etc).  
+
+    Also, perhaps flip the polarity since we can be off for arbitrary
+    amounts of time.
+
+  3. Do the next lab to let your copy code anywhere and run it.
 
 ### Part 1.  IR Protocol.
 
