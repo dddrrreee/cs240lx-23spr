@@ -18,5 +18,5 @@ OPT_LEVEL = -O2
 DEPS = ./Makefile
 include $(CS140E_2023_PATH)/libpi/mk/Makefile.template-v2
 
-libs::
-	make -C ../small-prog
+#libs::
+#	make -C ../small-prog
