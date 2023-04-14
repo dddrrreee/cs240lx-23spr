@@ -166,7 +166,7 @@ I used a dumb protocol for sending packets:
 
             uint32_t hash = fast_hash_inc32(data, nbytes, 0);
 
-     - `send(nbytes)`
+     - `send32(nbytes)`
 
   2. Receiver, get header:
 
