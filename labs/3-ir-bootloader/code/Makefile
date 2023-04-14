@@ -1,6 +1,6 @@
 # list out the driver program source 
-PROGS := 2-ping-pong-byte.c
 PROGS := 1-hello.c
+PROGS := 2-ping-pong-byte.c
 
 COMMON_SRC = ir-put-get.c 
 
