@@ -163,24 +163,24 @@ I used a dumb protocol for sending packets:
      - `send32(PKT_HDR)` (see the enum in `ir-put-get.c`).
      - `send32(hash)`: where hash is:
 
-        uint32_t hash = fast_hash_inc32(data, nbytes, 0);
+            uint32_t hash = fast_hash_inc32(data, nbytes, 0);
 
      - `send(nbytes)`
 
   2. Receiver, get header:
 
-    - Gets the three words.
-    - Send ack: `send32(PKT_HDR_ACK)`.
+     - Gets the three words.
+     - Send ack: `send32(PKT_HDR_ACK)`.
 
   3. Sender, data:
-    - `send32(PKT_DATA)`
-    - send the data (using `ir_put8`).
+     - `send32(PKT_DATA)`
+     - send the data (using `ir_put8`).
 
   4. Receiver:
-    - Gets `PKT_DATA`
-    - Gets the data.
-    - computes the checksum and verifies it.
-    - `send(PKT_DATA_ACK)`
+     - Gets `PKT_DATA`
+     - Gets the data.
+     - computes the checksum and verifies it.
+     - `send(PKT_DATA_ACK)`
 
   5. Sender: if receives `PKT_DATA_ACK` is done.
 
