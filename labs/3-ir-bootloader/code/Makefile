@@ -10,7 +10,7 @@ STAFF_OBJS += staff-ir-put-get.o
 
 CFLAGS += -I../small-prog
 
-LIB_POST = ../../1-mailboxes/code.staff/libgcc.a
+LIB_POST = ./libgcc.a
 # set RUN = 1 if you want the code to automatically run after building.
 RUN = 1
 OPT_LEVEL = -O2
