@@ -144,18 +144,64 @@ Extension: specialize GPIO routines
      large constants in to eliminate the cache hit from loading them from
      memory (gcc's preferred method).
 
+--------------------------------------------------------------------------
+### Part 3: add executable headers in a backwards compatible way.
 
+Even the ability to stick a tiny bit of executable code in a random place
+can give you a nice way to solve problems.  For this part, we use it to
+solve a nagging problem we had from `cs140e`.
 
-----------------------------------------------------------------------------
-### Part 3: make an interrupt dispatch compiler.
+As you might recall, whenever we wanted to add a header to our pi
+binaries, we had to hack on the pi-side bootloader code and sometimes
+the unix-side code.  Which was annoying.
+
+However, with a simple hack we could have avoided all of this:  if you
+have a header for (say) 64 bytes then:
+
+   1. As the first word in the header (which is the first word of the
+      pi binary), put the 32-bit value for a ARMv6 branch (`b`)
+      instruction that jumps over the header.
+
+   2. Add whatever other stuff you want to the header in the other
+      60 bytes: make sure you don't add more than 64-bytes and that you
+      pad up to 64 bytes if you do less.
+
+   3. When you run the code, it should work with the old bootloader.
+
+      It's neat that the ability to write a single jump instruction
+      gives you the ability to add an arbitrary header to code and have
+      it work transparently in a backwards-compatible way.
+
+More detailed:
+   1. Write a new linker script that modifies `./memmap`  to have a header
+      etc.  You should store the string `hello` with a 0 as the first
+      6 bytes of the after the jump instruction.
+
+   2. Modify `3-jump/hello.c` to set a pointer to where this string will
+      be in memory.  The code should run and print it.
+
+   3. For some quick examples of things you can do in these scripts
+      you may want to look at the `3-jump/memmap.header` or
+      `3-jump/memmap.header` linker scripts from old labs.  The linker
+      script language is pretty bad, so if you get confused, it's their
+      fault, not yours --- keep going, try google, etc.     We don't
+      need much for this lab's script, so it shouldn't be too bad.
+
+   4. To debug, definitely look at the `hello.list` to see what is
+      going on.
+
+   5. [linker script example](https://interrupt.memfault.com/blog/how-to-write-linker-scripts-for-firmware)
+
+--------------------------------------------------------------------------
+### Part 4: make an interrupt dispatch compiler.
 
 We now do a small, but useful OS-specific hack.  In "real" OSes you
-often have an array holding interrupt handlers to call when you get an interrupt.
-This lets you dynamically register new handlers, but adds extra overhead
-of traversing the array and doing (likely mis-predicted) indirect
-function calls.  If you are trying to make very low-latency interrupts
---- as we will need when we start doing trap-based code monitoring ---
-then it would be nice to get rid of this overhead.
+often have an array holding interrupt handlers to call when you get an
+interrupt.  This lets you dynamically register new handlers, but adds
+extra overhead of traversing the array and doing (likely mis-predicted)
+indirect function calls.  If you are trying to make very low-latency
+interrupts --- as we will need when we start doing trap-based code
+monitoring --- then it would be nice to get rid of this overhead.
 
 We will use dynamic code generation to do so.  You should write an
 `int_compile` routine that, given a vector of handlers, generates a
@@ -198,95 +244,18 @@ Now, some issues:
 There are hacks to get around (1) and (2) but for expediency we just
 declare success, at least for this lab.
 
-#### Extension: making a `curry` routine
+--------------------------------------------------------------------------
+### Part 5: make a jitter for dot-product.
 
-One big drawback of C is it's poor support for context and generic arguments.
+Given a sparse vector, generate custom dot product code that hard-codes
+the given vectors non-zero values in the instruction stream.
 
-For example, if we want to pass a routine `fn` to an `apply` routine to 
-run on each entry in some data structure:
-  1. Any internal state `fn` needs must be explicitly passed.  
-  2. Further, unless we want to write an `apply` for each time, we have
-     to do some gross hack like passing a `void \*` (see: `qsort` or
-     `bsearch`).
+This was the first piece of code I ever wrote that led to publication.
+It's fun.  
+   1. For each unit test in `armv6-encodings` implement the needed
+      instruction.
 
-So, for example even something as simple as counting the number of
-entries less than some threshold becomes a mess:
+   2. Write the code in `5-jit-dot` to encode a dot product in the 
+      instruction stream, skipping zeros.  
 
-        struct ctx {
-            int thres;  // threshold value;
-            int sum;    // number of entries < thres
-        };
-
-        // count the number of entries < val
-        void smaller_than(void *ctx, const void *elem) {
-            struct ctx *c = ctx;
-            int e = *(int *)elem;
-
-            if(e < ctx->thres)
-                ctx->thres++;
-        }
-
-
-        typedef void (*apply_fn)(void *ctx,  const void *elem);
-
-        // apply <fn> to linked list <l> passing <ctx> in each time.
-        void apply(linked_list *l, void *ctx, apply_fn fn);
-
-        ...
-
-        // count the number of entries in <ll> less than <threshold
-        int less_than(linked_list *ll, int threshold) {
-            struct ctx c = { .thres = 10 };
-            apply(ll, &c, smaller_than);
-            return c.sum;
-        }
-        
-
-This is gross.
-
-Intuition: if we generate code at runtime, we can absorb each argument
-into a new function pointer.  This means the type disppears.  Which 
-makes it all more generic.
-
-
-To keep it simple:
-
-    1. allocate memory for code and to store the argument.
-    2. generate code to load the argument and call the original
-       routine.
-
-
-    int foo(int x);
-    int print_msg(const char *msg) {
-        printk("%s\n", msg);
-    }
-
-    typedef (*curry_fn)(void);
-
-    curry_fn curry(const char *type, ...) {
-        p = alloc_mem();
-        p[0] = arg;
-        code = &p[1];
-
-        va_list args;
-        va_start(args, fmt);
-        switch(*type) {
-        case 'p':
-                code[0] = load_uimm32(va_arg(args, void *);
-                break;
-
-        case 'i':
-                code[0] = load_uimm32(va_arg(args, int);
-                break;
-        default:
-                panic("bad type: <%s>\n", type);
-        }
-        code[1] = gen_jal(fp);
-        code[2] = gen_bx(reg_lr);
-        return &code[0];
-    }
-
-
-    curry_fn foo5 = curry("i", foo, 5);
-    curry_fn hello = curry("i", bar, 5);
-
+  
