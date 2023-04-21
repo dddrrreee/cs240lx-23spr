@@ -1,8 +1,5 @@
-/*
- * Sparse matrix multiplication; engler 1997.
- */
+// generate a custom dot-product routine.
 #include "jit-dotproduct.h"
-
 
 #include "armv6-encodings.h"
 #include "arena.h"
@@ -20,8 +17,6 @@ void jit_init(void) {
     jit_arena = arena_mk(1024*1024);
 }
 
-
-// how to dump out?  
 
 // given in a vector <b> and generate a dot-product routine specialized
 // to <b>'s -zero values: 
@@ -55,7 +50,8 @@ vec_fn_t jit_dot(uint32_t *b, unsigned n) {
     // we can eliminate this if we special case the first load.
     cp = armv6_load_imm32(cp, sum, 0);
 
-    // iterate over each non-zero and generate.
+    // iterate over each non-zero and generate a multiply 
+    // accumlate into sum.
     for(int i = 0; i < n; i++) {
         assert((cp + 10) < end);
 
@@ -63,24 +59,14 @@ vec_fn_t jit_dot(uint32_t *b, unsigned n) {
         if(b[i] == 0)
             continue;
 
-        // a_i = a[i].  (this happens once)
-        cp = armv6_load_imm32(cp, b_i, b[i]);
-
-        // b_i = b[i] (this happens each time the routine
-        // is called)
-        *cp++ = armv6_ldr_off12(a_i, a, i*4);
-
-
-        // use the multiply accumulate instruction.
-        *cp++ = armv6_mla(sum, a_i, b_i, sum);
-
-#if 0
-        // do something like this to return.
-        *cp++ = armv6_mov(reg_mk(0), sum);
-        *cp++ = armv6_bx(lr);
-#endif
+        /* 
+            1. set  a_i = a[i].  (this happens once)
+            2. set b_i = b[i] (this happens each time the routine
+               is called)
+            3. use the multiply accumulate instruction.
+         */
+        todo("implement this code\n");
     }
-
 
     // can get rid of this by changing the last instruction.
     *cp++ = armv6_mov(reg_mk(0), sum);
