@@ -74,7 +74,20 @@ void notmain(void) {
 // mild attempt to make sure that the random values from <test> are 
 // gone by the time we get back to main.
 unsigned bar(void) {
+#if 1
     void *p = test();
-    PUT32(0, (uint32_t)p);
+    put32(&p, 0);
     return 0;
+#else
+    void *p = ckalloc(4);
+    ck_verbose_set(1);
+    hdr_t *h = ck_ptr_is_alloced(p);
+    if(h)
+        output("about to check leak on block: %d, ptr=%x\n", h->block_id, p);
+
+    check_should_leak();
+    put32(p,0);
+    return 0;
+
+#endif
 }
