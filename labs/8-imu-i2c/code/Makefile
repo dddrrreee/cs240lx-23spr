@@ -1,5 +1,5 @@
+PROGS = driver-gyro.c
 PROGS = driver-accel.c
-PROGS += driver-gyro.c
 
 # COMMON_SRC = mpu-6050.c
 STAFF_OBJS = staff-i2c.o staff-mpu-6050.o
