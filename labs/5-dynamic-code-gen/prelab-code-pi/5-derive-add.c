@@ -1,16 +1,12 @@
-// figure out the value of <pc> register (r15) when read with a
-// <mov> by using some code and reasoning about where stuff is.  
-// 
-// in general, its better to use the arch manual, but we do it 
-// this way to get used to kicking the tires.
+// simple solver for add instruction.  vary the last register
+// from r0..r15 and solve for the bits.
 #include "rpi.h"
 
-/*
- * from .list file:
- * 00008038 <pc_val_get>:
- *  8038:   e1a0000f    mov r0, pc
- *  803c:   e12fff1e    bx  lr
- */
+void derive_bne(int x) {
+    asm volatile ("beq l1; l1:");
+    asm volatile ("beq l2; nop; l2:");
+}
+
 void derive_add(void) {
     asm volatile ("add r0, r0, r0");
     asm volatile ("add r0, r0, r1");
@@ -40,6 +36,18 @@ void notmain() {
     // solve.
     output("-------------------------------------\n");
     output("solve for changed bits\n");
+
+    // solve for register bits by computing which
+    // bits change.
+    //
+    // we do so by computing which bits never change:
+    // everything else must belong to the register
+    // field.
+    //
+    // - compute which bits are always 0.
+    // - compute which bits are always 1.
+    // - bits that change are the negation 
+    //   of these.
     uint32_t always_0 = ~0;
     uint32_t always_1 = ~0;
     for(int i = 0; i < 15; i++) {
@@ -53,6 +61,9 @@ void notmain() {
             output("bit=%d changed: part of source 2 register\n",i);
     }
 
+    // many fields are encoded linearly in that you can
+    // plug in the smallest value (r0) and the largest (r15)
+    // and just solve for what changed.
     output("-------------------------------------\n");
     output("going to try cheating!\n");
     // we cheat and assume contiguous and r0...r15

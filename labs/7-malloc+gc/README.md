@@ -354,3 +354,18 @@ But: if you need `free()`, you need it.  And the use of arenas and object
 allocators are a reasonable way to get much of the benefits of a general
 free without much of the complexity.
 
+
+
+--------------------------------------------------------------------
+### NOTES:
+
+We falsely think blocks are still claimed because we only get the stack
+pointer several calls deep into our code.  There can be many spurious
+values on the stack from previous activations.  The right thing is
+to grab the stack pointer before calling into the GC system.
+
+Common mistake: freeing a block and then getting its next pointer in
+the sweep routine.  Everyone did this (me, too).
+
+Need to write a bunch more tests and have a gcov like tool to track
+what got executed.

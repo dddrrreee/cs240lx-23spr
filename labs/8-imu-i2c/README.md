@@ -30,6 +30,13 @@ NOTE:
     step during bootup that the 6500 does not, or it won't give any
     non-zero readings.
 
+  - We use the "data ready" interrupt to see when new data is available.
+    With the checked-in i2c implementation this check will *never* fail 
+    because the speed is too slow.   I checked in a faster staff i2c
+    (or you can write your own!) to fix this.  Interesting bug to 
+    track down since it's also consistent with misconfiguration.
+     
+
 The `docs` directory has a bunch of documents.  The two main ones for
 the MPU-6050:
   - The register map document that defines the the "register" number used
@@ -37,6 +44,7 @@ the MPU-6050:
   - The device description that gives a more general device overview
     along with self-test and startup delays:
     `docs/MPU-6050-spec.pdf`).
+
 
 [A nice clear SPARKFUN tutorial on gyros](https://learn.sparkfun.com/tutorials/gyroscope/all).
 
@@ -162,3 +170,4 @@ Different writeups in `./docs` for different directions:
    2. [Calibrate](./docs/AN4246.pdf)
    3. [Even more compass + Calibrate](./docs/AN4248.pdf)
    4. [Location](./docs/madgewick-estimate.pdf)
+
