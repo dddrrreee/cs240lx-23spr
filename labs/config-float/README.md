@@ -55,3 +55,14 @@ You should get:
         COS(4.712388) = -0.0
         sin(4.712388) = -1.0
         DONE!!!
+
+
+--------------------------------------------------------------------
+## Madgewick: where am I?
+
+The directory: `imu/src` has a madgwick implementation to fuse gyro, accel
+and mag.  The `madgwick-blake` directory has a version that fuses gyro
+and accel.  They give euler angles as well as other location indications.
+
+I didn't have time to figure out how to use this so: great final project!
+I'm super interested in how to do this accurately and fast.
