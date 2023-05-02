@@ -23,5 +23,13 @@ double atan(double x);
 double atan2(double y, double x);
 /* s_round.c */
 double round(double x);
-
+/* e_sqrt.c */
 double sqrt(double x);
+/* e_atan2f.c */
+float atan2f(float y, float x);
+/* e_asinf.c */
+float asinf(float x);
+/* s_fabsf.c */
+float fabsf(float x);
+/* s_atanf.c */
+float atanf(float x);
