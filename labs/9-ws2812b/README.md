@@ -34,6 +34,19 @@ The protocol to set N pixels:
   4. The first 3 bytes you send will get claimed by the first pixel, the second 3
      bytes by the second, etc.
 
+### Notes.
+
+Common mistakes:
+  1. for the inlined GPIO routines make sure you use `volatile` pointers.
+  2. When writing to the neopixel array, make sure you discard any out of
+     bound pixel values.
+  3. If you're not getting fairly tight timings, make sure all you are doing
+     is writing to the GPIO address --- no if-statement sanity checking,
+     division, calling into `GET32` or `PUT32`.
+  4. When you reset the neopixel buffer make sure any pixel that was not
+     written to is cleared, otherwise each pixel will remain set to the last
+     value written to it.
+
 ### Check-in
 
 I wish I had time to rewrite the lab, it currently gives too much
