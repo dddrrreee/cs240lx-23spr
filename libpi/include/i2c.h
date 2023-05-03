@@ -5,6 +5,9 @@
 // boots up so you have to delay before you can get legal values.  (delay often in ms)
 void i2c_init(void);
 
+// shortest will be 130 for i2c accel.
+void i2c_init_clk_div(unsigned clk_div);
+
 // can call N times, will only initialize once (the first time)
 void i2c_init_once(void);
 
