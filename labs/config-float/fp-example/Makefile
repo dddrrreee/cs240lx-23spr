@@ -14,4 +14,4 @@ LIBS += $(LIBM)
 #LIBS += ./libgcc.a
 #LIB_POST := ./libgcc.a
 
-include $(CS240LX_2023_PATH)/libpi/mk/Makefile.template
+include $(CS240LX_2023_PATH)/libpi/mk/Makefile.template-v2
