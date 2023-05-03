@@ -36,7 +36,16 @@ The protocol to set N pixels:
 
 ### Check-in
 
-You'll implement several pieces of code:
+I wish I had time to rewrite the lab, it currently gives too much
+starter code, which I think can actually occlude some of the stuff.
+If you want to Daniel style and write all the code from scratch, the
+interface is pretty small.  You'll just need to put your code in the
+`WS2812b.h` header.    `code-daniel` should have everything setup.
+
+If you're lazier, you'll implement several pieces of code:
+
+  0. Get `labs/float-example` to run so you have floating point.
+     You'll need to define the `CS240LX_2023_PATH` variable.
 
   1. Timing routines in `code/WS2812.h`.  These should pass the timing
      tests run by `0-timing-check`.   Since part of this class is
@@ -49,8 +58,9 @@ You'll implement several pieces of code:
      the timings as far as you can and have the code still work.
      The program `2-neopix.c` should work as expected.
 
-  3. Do something novel/cute with the light using your interface.   For example,
-     hook it up to your sonar.
+  3. Do something novel/cute with the light using your interface.
+     For example, hook it up to your accel and gyro.  Or use the remote
+     control to control it.
 
 -------------------------------------------------------------------------
 ### Timing weirdness.
