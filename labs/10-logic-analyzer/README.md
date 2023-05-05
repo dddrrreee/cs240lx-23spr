@@ -101,16 +101,25 @@ Today's checkoff:
   1. Have an analyzer that works.  (Part 1 below.)
   2. Show you've improved `scope` and `test-gen` by a reasonable amount. 
      (Part 2 below.)
+  3. Do the scope using interrupts and see how much better it gets.
 
-Since we're all about fun, I propose a contest, (winner declared in a
-week?) where we award a "cs140e Alpha hacker" badge to whomever improves
-accuracy to the highest absolute level.  I'll also send a $100 bill.
+Since we're all about fun, I propose a contest, (winner declared in
+a week?) where we award a "240lx hacker" badge to whomever improves
+accuracy to the highest absolute level.  I'll also kick in a $100 bill.
+You do have to beat my code (which I'll check in later ;).
 
-Extension from last lab:
-  1. Writing a software UART implementation.
-  2. Checking this protocol with your analyzer.
-  3. Using the protocol to send logged data from the analyzer-pi and your checked-pi.
-
+Extensions:
+  - turn your scope nd test into a network transmit and receive and 
+    see how much bandwidth you can get.
+  - use more than one wire and see how much bandwidth you can get.
+  - jit your test signal code.
+  - pull in your virtual memory from 140e, turn on caches, and see how
+    much faster.
+  - use the pi PWM hardware to generate a test signal.  i have no idea
+    how accurate it is, but am curious!
+  - change monitoring pi so that you can upload code to it and have the
+    code send results back to the monitored pi.
+  - there are tons.
 
 -----------------------------------------------------------------
 ### Organization
