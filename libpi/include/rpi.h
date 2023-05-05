@@ -207,6 +207,7 @@ void caches_enable(void);
 void caches_disable(void);
 int caches_is_enabled(void);
 
+#define enable_cache caches_enable
 
 int memiszero(const void *_p, unsigned n);
 
@@ -234,6 +235,7 @@ int memiszero(const void *_p, unsigned n);
 #include "rpi-constants.h"
 // any extra prototypes you want to add
 #include "your-prototypes.h"
+
 
 
 void custom_loader(void);

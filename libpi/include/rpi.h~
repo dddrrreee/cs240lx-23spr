@@ -135,7 +135,7 @@ void *kmalloc_aligned(unsigned nbytes, unsigned alignment);
 void kmalloc_init_set_start(void *addr, unsigned max_nbytes);
 static inline void kmalloc_init(void) {
     unsigned MB = 1024*1024;
-    kmalloc_init_set_start((void*)MB, MB);
+    kmalloc_init_set_start((void*)MB, 64*MB);
 }
 
 // return pointer to the first free byte.  used for

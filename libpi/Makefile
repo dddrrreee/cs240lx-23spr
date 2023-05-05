@@ -29,6 +29,8 @@ STAFF_OBJS  +=  ./staff-objs/gpio-pud.o
 STAFF_OBJS  +=  ./staff-objs/gpio-int.o 
 STAFF_OBJS  +=  ./staff-objs/kmalloc.o
 STAFF_OBJS  +=  ./staff-objs/i2c.o
+STAFF_OBJS  +=  ./staff-objs/rpi-thread.o
+STAFF_OBJS  +=  ./staff-objs/rpi-thread-asm.o
 
 # automatically add all staff src from:  libc, 
 # staff-src and ./staff-start.S
