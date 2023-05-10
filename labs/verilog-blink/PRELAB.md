@@ -28,11 +28,6 @@ The following open-source tools are needed for UPduino FPGA development:
 
 Installing all these tools is a bit of a pain.
 
-
-Update: try downloading the prebuilt oss-cad-suite build from: https://github.com/YosysHQ/oss-cad-suite-build/releases.
-
-If that doesn't work you can follow these instructions.
-
 ### Pre-built tools
 
 For Ubuntu:
@@ -51,6 +46,8 @@ For Mac:
 ```
 brew install yosys
 brew install verilator
+brew tap ktemkin/oss-fpga
+brew install --HEAD icestorm nextpnr-ice40
 ```
 
 Build the ice40 tools and NextPNR from source, or use prebuilt binaries (coming soon).
