@@ -16,6 +16,9 @@ The first lab will be about applying the concepts from sections 2, 3, and 4.
 The second lab will additionally involve section 5 (finite state machines) to
 build a hardware UART module.
 
+Once you have installed everything, try running `make` in the `code/empty`
+directory.
+
 ## Toolchain installation
 
 The following open-source tools are needed for UPduino FPGA development:
