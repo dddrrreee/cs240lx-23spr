@@ -1,20 +1,49 @@
 ### How to configure the SPH0645LM4H-B I2S microphone.
 
-We use the SPH0645LM4H-B I2S microphone.  Its datasheet is pretty
+We use [adafruit breakout](https://www.adafruit.com/product/3421) for
+the SPH0645LM4H-B I2S MEMS microphone.
+
+<p align="center">
+  <img src="images/adafruit-i2s-mic.jpg" width="400" />
+</p>
+
+The [SPH0645LM4H datasheet](./docs/SPH0645LM4H-datasheet.pdf) is pretty
 short and, because there is not much going on, relatively approachable.
-However, one issue I had was that it was easy to make clock frequency
-mistakes.  Clock and frequency mistakes are a problem
-for multiple reasons, one of which is that
-if the supplied clock is less than 900,000 cycles per second (900KHz)
-the device remains in sleep mode and produces no output.   
 
-Compounding this issue: the pi's PCM clock is not documented in the
-Broadcom BCM2835 datasheet and you have to piece together its existence
-and how to use it from the BCM2835 erata and blog posts.  (The linux
-source is also useful, though there is a bunch of infrastructure
-code that occludes what is going on in many places.)
+However, one issue I had is that its description is a different type
+than the previous devices we've used.  Rather than, say, a list of the
+specific set of I2C or SPI commands it responds to, the mic is mostly
+described in terms of its input clock requirements and the data size
+and format it generates.  I don't know if this is fundamentally harder
+than our other devices --- as typed out it sounds easier, especially
+as compared to the 70+ page NRF we did previously --- but it requires
+a bit different reasoning, at least for me.
 
-A short, not-necessarily-complete cheat-sheet of key facts:
+Related, it was easy to make clock frequency mistakes in terms of how
+fast it ran, how the BCLK and FS (sort-of) clock are related, and how to
+specify the actual clock speed on the rpi.  This latter task being made
+more exciting by the expedient method of the Broadcom BCM2835 datasheet
+simply not containing any description of the needed PCM clock, which you
+have to piece together from the BCM2835 erata and blog posts.  (The linux
+source is also useful, though there is a bunch of infrastructure code
+that occludes what is going on in many places.)
+
+Clock and frequency mistakes are a problem for multiple reasons, one of
+which is that if the supplied clock is less than 900,000 cycles per second
+(900KHz) the device remains in sleep mode and produces no output.
+
+To summarize the datasheet (from page 8):
+  - BCLK must be in the 2048KHz to 4096KHz range.
+  - WS must change on the falling edge of BCLK (Broadcom says this is
+    default: p 120).
+  - WS must be BCLK/64 (this means we have a 50% duty cycle where it is
+    low for BCLK/32 and then high for BCLK/32).
+  - The hold time must be greater than the hold time to the receiver (not
+    sure what this refers to, tbh).
+  - The mode must be i2s with MSB delayed 1 BCLK cycle after WS changes
+    (we will see this is the default when we measure).
+
+A bit longer, not-necessarily-complete cheat-sheet of key facts:
   - supply voltage: 3.6max, 1.62min (current draw is small enough
     that gpio pin seems to work).  (page 2)
 
@@ -110,14 +139,152 @@ A short, not-necessarily-complete cheat-sheet of key facts:
     from the data pin to ground to handle bus capacitance.  We don't
     though.  Hopefully the breakout board does.   Hopefully this is ok!
 
-To summarize (page 8):
-  - BCLK must be in the 2048KHz to 4096KHz range.
-  - WS must change on the falling edge of clk (broadcom says this is default:
-    p 120).
-  - WS must be BCLK/64 (this means we have a 50% duty cycle where it is
-    low for BCLK/32  and then high for BCLK/32).
-  - The hold time must be greater than the hold time to the receiver (not
-    sure).
-  - The mode must be i2s with MSB delayed 1 BCLK cycle after WS changes
-    (we will see this is the default when we measure).
 
+---------------------------------------------------------------------------
+### How to configure the bcm2835 PCM clock.
+
+As discussed above, the i2s microphone expects a clock signal that
+should switch at a rate of the sample rate times 64.  If we want to 
+sample at 44.1 kHz the clock will be:
+
+         44.1 * 1000 * 64 = 2,822,400 (Hz)
+
+If you come from software, an additional source of confusion is that
+we can't just set the clock to this value of 2.8224Mhz (as we would
+with a variable) but instead must express it as a divisor (integer and
+fractional part) of some other clock.  This is a bit weird.  It also
+means you have to pay attention to the period of the other clock and
+find one that (ideally) divides with no remainder.
+
+The pi provides a PCM clock for this purpose, though as the [errata
+notes](https://elinux.org/BCM2835_datasheet_errata)
+the broadcom 2835 datasheet doesn't discuss it.   Several sources of
+information:
+  - [i2s test code used by the eratta](https://github.com/arisena-com/rpi_src)
+  - [the Linux i2s driver](docs/bcm2835-i2s.c)
+
+From the errata, the PCM clock has two registers:
+  1. The PCM control register at `0x7E101098` (so for us `0x20101098`).
+  2. The PCM divisor register at`0x7E10109C` (so for us `0x7E10109C`).
+
+The key bits in the control (page 107):
+  - `31-24`: a byte length "password" (value `0x5a`) you must set for
+    the device to perform changes.  This is a common hack to try to 
+    reduce the chance of wild writes.
+
+  - bit 7: the BUSY flag: don't change the clock while this is set.
+  - bit 4: the ENAB flag.  You must disable the clock (ENAB=0)
+    *and* wait til BUSY=0 before changing the clock.
+
+  - bits 3-0: the clock source.  The basic idea is to pick a clock source
+    that (1) is high enough to give a good signal and (2) hopefully
+    divides evenly into the clock value you want.  From the eratta
+    and the bcm2835 i2s linux driver, the recommendation is to use the
+    "oscillator" (source = 0b0001) which is an XTAL crystal oscilating
+    at 19.2MHz.
+
+The key bits in the divisor register (page 108):
+  - `31-24`: a byte length "password" (value `0x5a`).
+  - `23-12`: DIVI: the integer part of the divisor.
+  - `11-0`: DIVF: the fractional part of the divisor *multipled by 4096*
+    This is super confusing and comes from the Broadcom formula on page
+    105 Table 6-32 which (after correction) gives the average 
+    output as 
+
+      rate = source / (DIVI + DIVF / 4096)
+
+<p align="center">
+  <img src="images/clock-formula.png" width="400" />
+</p>
+
+Putting it all together: To find the fractional divider of 19.2Mhz for
+our 44.1 khz sample rate:
+
+      rate = (19.2*1000*1000) / (44.1 * 1000)
+           = 435.37414965986392
+
+Not great, since not even.
+
+Even worse, as mentioned above, we 
+set the fractional value (DIVF) in a confusing way.
+We don't just set
+DIVF to 3741 (the four digits after the decimal).  
+Instead you multiply the fractional number by 4096 and do integer
+truncation.  So:
+
+    DIVF = trunc(.37414965986392 * 4096) 
+         = trunc(1532.5170068026164)
+         = 1532
+
+You can check this by plugging the result (DIVI = 435, DIVF = 1532)
+back in to the corrected Table 6-32 formula:
+
+    rate = source / (DIVI + DIVF / 4096)
+         = 19.2Mhz / (435 + 1532. / 4096)
+         = 19.2Mhz / (435 + 1532. / 4096)
+         = 44100.01278534306
+
+You can see that this result is as close as we can get with the 
+tools we got by recomputing with DIVF + 1:
+
+        = 19.2Mhz / (435 + 1533. / 4096)
+        = 44099.988055804628
+
+And DIVF - 1:
+
+        = 19.2Mhz / (435 + 1531. / 4096)
+        = 44100.037514909236
+
+Both of which are farther away.
+
+With that said, given the range of the mic there is no reason to have any
+error:  we can just use a 48Khz sample rate since that divides evenly
+into 19.2Mhz and not worry about sampling or logic error when someone
+makes a code mistake:
+
+             = (19.2*1000*1000) / (48khz * 1000) 
+             = 400
+
+So DIVI = 400, DIVF = 0.
+
+#### Loopback to check the clock.
+
+At this point it should be pretty clear that a clock isn't a wristwatch
+and is easy to make mistakes with.
+
+And, unfortunately, unlike null pointers, the microphone garbage that
+results from clock mistakes will be hard to detech.  So as part of setup
+we will try to check what we can to make sure that things make sense.
+(I recommend this in general!)
+
+The easiest thing to check is that i2s clock: just connect ("loopback")
+a jumper wire from the BCLK clock GPIO pin to some unused input pin and
+measure the time for a reading to go through a complete 0 to 1 transition.
+In our case, how many cycles the pin reads 0 plus how many cycles it
+reads 1.  (Or vice versa: doesn't matter.)  We expect the numer of
+cycles to be roughly
+
+A secondary check is to do the same thing for the WS GPIO pin and make
+sure the time it takes to do a complete 0 to 1 transition is 64x the value
+of the BCLK plus 1 for the transition period.
+
+From the bcm2835 pin table:
+
+<p align="center">
+  <img src="images/i2s-pins.jpg" width="400" />
+</p>
+
+We see the BCLK pin is 18 and the FS pin is 19.  So just do loopback
+using these.
+
+We need to compute the expected cycles per sample:
+
+        = ARM cycles per second / samples per second
+        = 700 MHz  / 48000
+        = 700*1000*1000 / 48000
+        = 14583.
+
+I checked that the 0 and the 1 were each about half (7291) so I could
+catch any asymetry.
+
+For the FS we expect this multiplied by 64.
