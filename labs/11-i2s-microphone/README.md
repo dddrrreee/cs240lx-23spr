@@ -186,38 +186,38 @@ The key bits in the control (page 107):
 The key bits in the divisor register (page 108):
   - `31-24`: a byte length "password" (value `0x5a`).
   - `23-12`: DIVI: the integer part of the divisor.
-  - `11-0`: DIVF: the fractional part of the divisor *multipled by 4096*
-    This is super confusing and comes from the Broadcom formula on page
-    105 Table 6-32 which (after correction) gives the average 
-    output as 
+  - `11-0`: DIVF: the fractional part of the divisor that results by
+    (1) *multiplying it by 4096* and then (2) truncating it (taking
+    the integer portion).
 
-      rate = source / (DIVI + DIVF / 4096)
+    This is super confusing and comes from the Broadcom formula on page
+    105 Table 6-32 which (after eratta correction) gives the average
+    output as:
+
+      rate = clock source / (DIVI + DIVF / 4096)
 
 <p align="center">
-  <img src="images/clock-formula.png" width="400" />
+  <img src="images/clock-formula.png" width="600" />
 </p>
 
-Putting it all together: To find the fractional divider of 19.2Mhz for
-our 44.1 khz sample rate:
+Putting it all together: To find the fractional divider of the 
+19.2Mhz clock to express a 44.1 khz sample rate:
 
       rate = (19.2*1000*1000) / (44.1 * 1000)
            = 435.37414965986392
 
 Not great, since not even.
 
-Even worse, as mentioned above, we 
-set the fractional value (DIVF) in a confusing way.
-We don't just set
-DIVF to 3741 (the four digits after the decimal).  
-Instead you multiply the fractional number by 4096 and do integer
-truncation.  So:
+As noted above, to express the fractional part of this result, we don't
+just set DIVF to 3741 (the first four digits after the decimal).  Instead
+you multiply the fractional number by 4096 and do integer truncation.  So:
 
     DIVF = trunc(.37414965986392 * 4096) 
          = trunc(1532.5170068026164)
          = 1532
 
-You can check this by plugging the result (DIVI = 435, DIVF = 1532)
-back in to the corrected Table 6-32 formula:
+You can check this result by plugging the result (DIVI = 435, DIVF =
+1532) back in to the corrected Table 6-32 formula:
 
     rate = source / (DIVI + DIVF / 4096)
          = 19.2Mhz / (435 + 1532. / 4096)
@@ -235,7 +235,8 @@ And DIVF - 1:
         = 19.2Mhz / (435 + 1531. / 4096)
         = 44100.037514909236
 
-Both of which are farther away.
+Both of which are farther away.  To get even closer we could also do
+MASH correction, but I'll ignore that.
 
 With that said, given the range of the mic there is no reason to have any
 error:  we can just use a 48Khz sample rate since that divides evenly
