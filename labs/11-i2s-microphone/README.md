@@ -1,3 +1,29 @@
+## Using an I2S to make an acoustically reactive display.
+
+Today we mostly get an I2S microphone working and then hopefully you 
+can run the output through an FFT and display on your light strip.
+Everyone loves blinky stuff.
+
+This is partially based on Parthiv's lab from 340lx:
+  - [i2s lab](https://github.com/dddrrreee/cs240lx-22spr/tree/main/labs/17-i2s)
+
+You can just use that lab directly if you like. 
+
+This write up has more discussion of where numbers come from, but it's
+more raw.  It also has one issue I'm trying to figure out: why the
+loopback for WS gives different timings than expected.
+
+Main goal:
+  1. Get i2s working.
+  2. Get some mic readings
+  3. Run through an FFT.
+  4. Play several known signals from your phone (eg 500hz) and see that it
+    gets decoded correctly.
+  5. Display the spectrum results somehow.
+
+The new code is in `code`.  Parthiv's lab code is in `code-parthiv`.
+
+---------------------------------------------------------------
 ### How to configure the SPH0645LM4H-B I2S microphone.
 
 We use [adafruit breakout](https://www.adafruit.com/product/3421) for
@@ -69,8 +95,7 @@ A bit longer, not-necessarily-complete cheat-sheet of key facts:
 
     You can similarly verify the values for the fastest clock:
 
-            1/(4996*1000) * 1000*1000*1000 = 244.140625(ns).
-
+            1/(4096*1000) * 1000*1000*1000 = 244.140625(ns).
 
     Cross-checking and rederiving values is a good way to mechanically
     detect where you've misunderstood a datasheet or made some dumb
@@ -165,7 +190,7 @@ information:
 
 From the errata, the PCM clock has two registers:
   1. The PCM control register at `0x7E101098` (so for us `0x20101098`).
-  2. The PCM divisor register at`0x7E10109C` (so for us `0x7E10109C`).
+  2. The PCM divisor register at`0x7E10109C` (so for us `0x2E10109C`).
 
 The key bits in the control (page 107):
   - `31-24`: a byte length "password" (value `0x5a`) you must set for
@@ -203,50 +228,42 @@ The key bits in the divisor register (page 108):
 Putting it all together: To find the fractional divider of the 
 19.2Mhz clock to express a 44.1 khz sample rate:
 
-      rate = (19.2*1000*1000) / (44.1 * 1000)
-           = 435.37414965986392
+      rate = (19.2*1000*1000) / (44.1 * 1000 * 64)
+            = 6.8027210884353737
 
 Not great, since not even.
 
 As noted above, to express the fractional part of this result, we don't
-just set DIVF to 3741 (the first four digits after the decimal).  Instead
+just set DIVF to 8027 (the first four digits after the decimal).  Instead
 you multiply the fractional number by 4096 and do integer truncation.  So:
 
-    DIVF = trunc(.37414965986392 * 4096) 
-         = trunc(1532.5170068026164)
-         = 1532
+    DIVF = round(.8027210884353737 * 4096) 
+         = round(3287.9455782312907)
+         = 3288
 
-You can check this result by plugging the result (DIVI = 435, DIVF =
-1532) back in to the corrected Table 6-32 formula:
+You can check this result by plugging the result (DIVI = 6, DIVF =
+3287) back in to the corrected Table 6-32 formula:
 
     rate = source / (DIVI + DIVF / 4096)
-         = 19.2Mhz / (435 + 1532. / 4096)
-         = 19.2Mhz / (435 + 1532. / 4096)
-         = 44100.01278534306
+         = 19.2Mhz / (6 + 3288. / 4096)
+         = 2,822,394.4875107664
+
+or a bit less than 6 cycles off of 2,822,400 Hz.
 
 You can see that this result is as close as we can get with the 
 tools we got by recomputing with DIVF + 1:
 
-        = 19.2Mhz / (435 + 1533. / 4096)
-        = 44099.988055804628
+        = 19.2Mhz / (6 + 3289. / 4096)
+        = 2822293.1993540283
 
 And DIVF - 1:
 
-        = 19.2Mhz / (435 + 1531. / 4096)
-        = 44100.037514909236
+        = 19.2Mhz / (6 + 3287. / 4096)
+        = 2822495.7829379463
 
-Both of which are farther away.  To get even closer we could also do
-MASH correction, but I'll ignore that.
 
-With that said, given the range of the mic there is no reason to have any
-error:  we can just use a 48Khz sample rate since that divides evenly
-into 19.2Mhz and not worry about sampling or logic error when someone
-makes a code mistake:
-
-             = (19.2*1000*1000) / (48khz * 1000) 
-             = 400
-
-So DIVI = 400, DIVF = 0.
+Both of which are farther away from 2,822,400.  To get even closer we
+could also do MASH correction, but I'll ignore that.
 
 #### Loopback to check the clock.
 
@@ -281,11 +298,14 @@ using these.
 We need to compute the expected cycles per sample:
 
         = ARM cycles per second / samples per second
-        = 700 MHz  / 48000
-        = 700*1000*1000 / 48000
-        = 14583.
+        = 700 MHz  / 44.1khz*64
+        = 700*1000*1000 / (44100*64)
+        = 248.
 
-I checked that the 0 and the 1 were each about half (7291) so I could
-catch any asymetry.
+For the FS (or WS) we expect this multiplied by 64.  Currently it is not.
+I'm not sure why --- if you figure out that's an extension, ty ty.
 
-For the FS we expect this multiplied by 64.
+---------------------------------------------------------------
+### How to configure I2s.
+
+Filling this in.
