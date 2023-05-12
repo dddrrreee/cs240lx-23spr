@@ -103,7 +103,6 @@ A bit longer, not-necessarily-complete cheat-sheet of key facts:
     particular cross check a priori rather than post, I would have saved
     me an hour or two.)
 
-
   - Power up time: 50ms (page 2).  Given our usage, I'm not sure how
     much this matters.  But if you were making real recordings, you
     would likely want to skip the first 50ms of readings.
@@ -116,7 +115,7 @@ A bit longer, not-necessarily-complete cheat-sheet of key facts:
   - Output date is 18 bits of precision (page 3).  If the i2s master
     configures the protocol to transfer more bits per reading (discussed
     below) the low bits of the value will be 0s.    As stated on 
-    page 7, the data format is 2's copmliment [sic]: in practice this
+    page 7, the data format is 2's compliment [sic]: in practice this
     means the high bits of the readings will be 1s (a negative number).
     One consequence is that when the measured value is close to silence,
     the output result will be it's largest (`0xf...`) and it will
