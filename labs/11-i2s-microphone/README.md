@@ -17,7 +17,7 @@ Main lab goals:
      using a loopback.
   2. Get some mic readings.
   3. Run through an FFT.
-  4. Play several known signals from your phone (eg 500hz) and see that it
+  4. Play several known signals from your phone (e.g., 500Hz) and see that it
     gets decoded correctly.
   5. Display the spectrum results somehow.
 
@@ -27,8 +27,8 @@ The tl;dr on what to do:
 
   1. Configure the PCM clock to use the 19.2MHz oscillator.  
      1. Disable the clock: Set ENAB=0, Passowrd=0x5a, and wait
-        til BUSY=0 (page 107).
-     2. Set DIVI=6, DIVF=3288, and MASH=1 (see the discusson below) to
+        until BUSY=0 (page 107).
+     2. Set DIVI=6, DIVF=3288, and MASH=1 (see the discussion below) to
         scale the (this is clock 1 from page 105).
 
 ---------------------------------------------------------------
@@ -54,12 +54,12 @@ as compared to the 70+ page NRF we did previously --- but it requires
 a bit different reasoning, at least for me.
 
 Related, it was easy to make clock frequency mistakes in terms of (1) how
-fast it ran, (2) how the BCLK and FS (also refered to as WS) clocks are related, and (3) 
+fast it ran, (2) how the BCLK and FS (also referred to as WS) clocks are related, and (3) 
 how to
 specify the actual clock speed on the rpi.  This latter task being made
 more exciting by the expedient method of the Broadcom BCM2835 datasheet
 simply not containing any description of the needed PCM clock, which you
-have to piece together from the BCM2835 erata and blog posts.  (The linux
+have to piece together from the BCM2835 errata and blog posts.  (The linux
 source is also useful, though there is a bunch of infrastructure code
 that occludes what is going on in many places.)
 
@@ -71,7 +71,7 @@ To summarize the datasheet (from page 8):
   - BCLK must be in the 2048KHz to 4096KHz range.
   - WS must change on the falling edge of BCLK (Broadcom says this is
     default: p 120).
-  - WS must be BCLK/64 (have a cycle (or "period") equal to 64 BLCK
+  - WS must be BCLK/64 (have a cycle (or "period") equal to 64 BCLK
     cycles).  It has a "50% duty cycle" where it is low (0) 32 BCLK
     cycles and then high (1) for 32 BCLK cycles.
   - The hold time must be greater than the hold time to the receiver (not
@@ -83,7 +83,7 @@ To summarize the datasheet (from page 8):
 
 A bit longer, not-necessarily-complete cheat-sheet of key facts:
   - supply voltage: 3.6max, 1.62min (current draw is small enough
-    that gpio pin seems to work).  (page 2)
+    that GPIO pin seems to work).  (page 2)
 
   - clock frequency: min=2048KHz up to max=4096KHz.  NOTE: the
     use of KHz (kilohertz)!  This means minimum clock 2,048,000hz (cycles
@@ -93,7 +93,7 @@ A bit longer, not-necessarily-complete cheat-sheet of key facts:
     (I made this mistake since they these numbers are powers of two in
     Hz and ugly non-powers of two in kHz.  It seemed that kHz was just
     a redundant editorial comment rather than stating the value must be
-    multplied by 1000.)
+    multiplied by 1000.)
 
     You can sanity check this calculation by recomputing it from the
     the minimum and maximum clock periods (page 4) --- the total time
@@ -114,9 +114,9 @@ A bit longer, not-necessarily-complete cheat-sheet of key facts:
 
             1/(4096*1000) * 1000*1000*1000 = 244.140625(ns).
 
-    NOTE: Cross-checking and rederiving values is a good way to
+    NOTE: Cross-checking and re-deriving values is a good way to
     mechanically detect where you've misunderstood a datasheet or made
-    some dumb mistake despite understanding it.  (Embarassingly if I did
+    some dumb mistake despite understanding it.  (Embarrassingly if I did
     this particular cross check a priori rather than a posteriori,
     I'd have saved about an hour of wrong-effort.)
 
@@ -126,7 +126,7 @@ A bit longer, not-necessarily-complete cheat-sheet of key facts:
 
     As discussed before, many devices are not simple switches or LEDs
     where we can immediately start using their values or controlling
-    them after powerup.  The more complex the device the more work it
+    them after power-up.  The more complex the device the more work it
     may well need to do before it is in a clean, initialized state.
 
   - Output date is 18 bits of precision (page 3).  If the i2s master
@@ -143,7 +143,7 @@ A bit longer, not-necessarily-complete cheat-sheet of key facts:
 
   - As the datasheet states, the mic is a i2s slave, which means we
     have to configure the i2s hardware on the pi to control it (i.e., be
-    in in master mode).  Among other things this means the pi suppliies
+    in in master mode).  Among other things this means the pi supplies
     this clock signal as well as WS (a sort-of additional clock that
     denotes complete frames).  Since our pi doesn't magically know what
     the microphone needs for a clock we will have to figure out how to
@@ -227,12 +227,12 @@ The key bits in the control (page 107):
     than to set ENAB=0.
 
   - bit 4: the ENAB flag.  You must disable the clock (ENAB=0)
-    *and* wait til BUSY=0 before changing the clock.
+    *and* wait until BUSY=0 before changing the clock.
 
   - bits 3-0: the clock source.  The basic idea is to pick a clock source
     that (1) is high enough to give a good signal and (2) hopefully
-    divides evenly by the clock value you actually want.  From the eratta
-    and the bcm2835 i2s linux driver, the recommendation is to use the
+    divides evenly by the clock value you actually want.  From the errata
+    and the bcm2835 i2s Linux driver, the recommendation is to use the
     "oscillator" (source = 0b0001) which is an XTAL crystal oscillating
     at 19.2MHz --- this is larger than the 2.8224MHz clock we need (good)
     but does not evenly divide it (sad).
@@ -300,7 +300,7 @@ At this point it should be pretty clear that a clock isn't a wristwatch
 and is easy to make mistakes with.
 
 And, unfortunately, unlike null pointers, the microphone garbage that
-results from clock mistakes will be hard to detech.  So as part of setup
+results from clock mistakes will be hard to detect.  So as part of setup
 we will try to check what we can to make sure that things make sense.
 (I recommend this in general!)
 
@@ -309,7 +309,7 @@ a jumper wire from the BCLK clock GPIO pin (18) to some unused input
 pin and measure the time for a reading to go through a complete 0 to
 1 transition.  In our case, how many cycles the pin reads 0 plus how
 many cycles it reads 1.  (Or vice versa: doesn't matter.)  We expect
-the numer of cycles to be roughly
+the number of cycles to be roughly
 
 A secondary check is to do the same thing for the WS GPIO pin and make
 sure the time it takes to do a complete 0 to 1 transition is 64x the
@@ -333,7 +333,7 @@ We need to compute the expected cycles per sample:
 
 For the FS we expect this multiplied by 64.  If you set to a non-zero
 value you should get close.  If MASH=0 you'll see its way off.  (This
-check saved me from a dumb mistake where I ignored MASH becasuse I didn't
+check saved me from a dumb mistake where I ignored MASH because I didn't
 care about smoothing and so missed its role in using the DIVF part.)
 
 ---------------------------------------------------------------
@@ -405,14 +405,14 @@ The `FIFO_A`  register is used to read samples:
 
 The `MODE_A` register is used to configure the channel and FS values:
   - `CLK_DIS` (bit 28, p 130: disable the clock before setting the PCM
-    clock.  Use the SYNC bit to wait for the dffect to take place.
+    clock.  Use the SYNC bit to wait for the effect to take place.
   - `CLKM` (23, p 130): the default is 0 which means master mode, so we
     can leave it as-is.
   - `FSM` (21, p 131): the default is 0 which means master mode, so we
     can leave it as-is.
   - `FSI` (20, p 131): if you connect the mic select to ground you'd have
     to invert this to get the signal.
-  - `FLEN` (19:10) frame length.   0 means a lenght of 1 clock.  We need
+  - `FLEN` (19:10) frame length.   0 means a length of 1 clock.  We need
     the frame length to be 64 clocks (from the mic data sheet) so set this
     to 63.
   - `FSLEN` (9:0) frame sync length.  We want half on, half off, so set this
