@@ -246,17 +246,14 @@ The key bits in the divisor register (page 108):
     the integer portion).
 
     This is super confusing and comes from the Broadcom formula on page
-    105 Table 6-32:
+    105 Table 6-32, which after eratta correction gives the average
+    output for a non-zero values of MASH as:
+
+        rate = clock source / (DIVI + DIVF / 4096)
 
 <p align="center">
   <img src="images/clock-formula.png" width="600" />
 </p>
-
-    Which after eratta correction gives the average output for a non-zero
-    values of MASH as:
-
-        rate = clock source / (DIVI + DIVF / 4096)
-
 
 
 Putting it all together: To find the fractional divider of the 
