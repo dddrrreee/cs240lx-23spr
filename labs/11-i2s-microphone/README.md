@@ -339,4 +339,104 @@ DIVF part.)
 ---------------------------------------------------------------
 ### 3. How to configure I2s.
 
-Filling this in.
+For what it's worth, I've annotated the BCM document a bit:
+  - [BCM2835-i2s.annot.pdf](./docs/BCM2835-i2s.annot.pdf).
+
+The `./docs` directory also has:
+  - [The original (short!) Philips specification](./docs/i2s-specification.pdf).
+  - [A decent TI application note](./docs/slaa449a.pdf)
+
+Key rules:
+  - (p 121): the control registers are not synchronized and should be programmed
+    before the device is enabled and not changed while it is running.
+    
+    NOTE: "enabled" is used in a very confusing way.  This refers to
+    whether TX or RX is enabled, and does not refer to whether the EN
+    (enabled) field (bit 0 of CS_A on page 129) is set to 1.  In fact, 
+    you'll have to set EN=1 to wake the device up before you do anything.
+
+    To configure the device you'll follow the steps on page 122
+    "Operating in Polled mode" by (1) set EN=1 so the device wakes up,
+    (2) set all configuration and then (3) set RXON=1 to begin operation.
+    Very confusing.
+
+  - (p 122): data always sent most-significant bit first.
+
+  - (p 122): as mentioned above: follow the steps in
+    "operating in polled mode" and end of 122, start of 123.
+
+  - (p 124) As usual when we enable a device we want to clear all 
+    internal state (in case it was left): in this case we disable TXON and
+    RXON and clear the two FIFOS TXCLR and RXCLR using the SYNC bit to
+    wait the two I2s cycles (this is the clock speed of the device
+    not the clock speed of the ARM!) needed for the operation to 
+    occur.
+
+  - (p 125): the PCM registers start at 0x7e203000 and are given in the
+    table at the bottom of the page.  They at increasing word offsets.
+
+For receiving mic data, the key bits of the CS_A register:
+
+  - SYNC (bit 24, p 126): used to wait for effects to occur.  You write
+    a 1 to it, and then spin until it returns 1.  (NOTE: in general,
+    we might actually need to write the negation to it and then wait.
+    Currently we only use once after reset, so writing a 1 works.)
+
+  - RXDX (bit 20, 127): non-zero if we have a sample.  Used to know when a 
+    mic sample is available.
+  - RXERR (bit 16, 127): non-zero if have an RX error.    Happens if we
+    read too slow.  At this point probably should clear the RXFIFO and clear
+    the error.
+  - We don't use interrupts or thresholds, so can ignore these flags.
+  - RXCLR (bit 4, p 128): used to clear the RX FIFO.  Do this at startup
+    just to be safe.
+  - RXON (bit 1, p 129): used to enable RX as the last step of our process.
+  - EN (bit 0, p 129): used to power on the device out of sleep as the
+    first step of configuration.  Unclear how long to wait.  We perhaps
+    should use the SYNC bit to detect?
+
+  - Summary: at the end, RXON=1, EN=1.
+
+The `FIFO_A`  register is used to read samples:
+  - note this will be a signed 32-bit value, high bits sent first.
+    Since the mic only provides 18 bits, the low 16 bits should all
+    be zero.  (You should check this.)
+
+The `MODE_A` register is used to configure the channel and FS values:
+  - `CLK_DIS` (bit 28, p 130: disable the clock before setting the PCM
+    clock.  Use the SYNC bit to wait for the dffect to take place.
+  - `CLKM` (23, p 130): the default is 0 which means master mode, so we
+    can leave it as-is.
+  - `FSM` (21, p 131): the default is 0 which means master mode, so we
+    can leave it as-is.
+  - `FSI` (20, p 131): if you connect the mic select to ground you'd have
+    to invert this to get the signal.
+  - `FLEN` (19:10) frame length.   0 means a lenght of 1 clock.  We need
+    the frame length to be 64 clocks (from the mic data sheet) so set this
+    to 63.
+  - `FSLEN` (9:0) frame sync length.  We want half on, half off, so set this
+    to 32 (32 cycles off, 32 cycles on).
+
+  - Summary: at the end, FLEN=63, FSLEN=32.
+
+The key bits of the `RXC_A` register (p 131) 
+  - CH1WEX (31): MSB of the channel 1 width.   (see below)
+  - CH1EN=1 (30) to enable channel 1.
+  - CH1WID (19:16) used to compute channel 1 width using the formula
+    `CH1WEX*16 + CH1WID + 8`.  We want a channel width of 32.
+    Which implies CH1WEX=1 and CH1WID=8 via `32 = 16 + 8 + 8`.
+    (Yeah, a bit awkward.)
+  - We don't use channel 2 so ignore these.
+  - Summary: CH1EN=1, CH1WEX=1, CH1WID=8.
+
+We don't use the rest of the features so can ignore them.
+
+Note: the PCM clock, GPIO and PCM device are all different hardware
+devices so make sure you use device barriers!
+
+To test the mic I would play different known test signals from your
+phone.  It probably can't play low frequencies so stick with higher ones?
+If you're confused about FFT and how to use it, it's a bit cringe chatGPT
+both gave decent answers.  (Ask for synthetic tests so you can double
+check results.)
+
