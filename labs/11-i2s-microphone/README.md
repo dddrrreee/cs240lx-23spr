@@ -272,8 +272,8 @@ you multiply the fractional number by 4096 and do integer truncation.  So:
          = round(3287.9455782312907)
          = 3288
 
-You can check this result by plugging the result (DIVI = 6, DIVF =
-3287, MASH=1) back in to the corrected Table 6-32 formula:
+You can check this result by plugging the result (DIVI = 6, DIVF = 3288,
+MASH=1) back in to the corrected Table 6-32 formula:
 
     rate = source / (DIVI + DIVF / 4096)
          = 19.2Mhz / (6 + 3288. / 4096)
@@ -282,19 +282,17 @@ You can check this result by plugging the result (DIVI = 6, DIVF =
 or a bit less than 6 cycles off of 2,822,400 Hz.
 
 You can see that this result is as close as we can get with the 
-tools we got by recomputing with DIVF + 1:
+tools we got by recomputing with the next largest DIVF value (DIVF=3289):
 
         = 19.2Mhz / (6 + 3289. / 4096)
         = 2822293.1993540283
 
-And DIVF - 1:
+And the next smallest DIVF (DIVF=3287):
 
         = 19.2Mhz / (6 + 3287. / 4096)
         = 2822495.7829379463
 
-
-Both of which are farther away from 2,822,400.  To get even closer we
-could also do MASH correction, but I'll ignore that.
+Both of which are farther away from 2,822,400.  
 
 #### Loopback to check the clock.
 
