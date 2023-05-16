@@ -54,7 +54,7 @@ as compared to the 70+ page NRF we did previously --- but it requires
 a bit different reasoning, at least for me.
 
 Related, it was easy to make clock frequency mistakes in terms of (1) how
-fast it ran, (2) how the BCLK and FS (sort-of) clocks are related, and (3) 
+fast it ran, (2) how the BCLK and FS (also refered to as WS) clocks are related, and (3) 
 how to
 specify the actual clock speed on the rpi.  This latter task being made
 more exciting by the expedient method of the Broadcom BCM2835 datasheet
@@ -207,7 +207,7 @@ From the errata, the PCM clock has two registers:
   1. The PCM control register at `0x7E101098` (so for us `0x20101098`), 
      which has the same layout as the GPU control register on page 107 of
      the BCM2835 datasheet.
-  2. The PCM divisor register at`0x7E10109C` (so for us `0x2E10109C`),
+  2. The PCM divisor register at`0x7E10109C` (so for us `0x2010109C`),
      which has the same layout as the GPU divisor register on page 108 of
      the BCM2835 datasheet.
 
@@ -330,11 +330,10 @@ We need to compute the expected cycles per sample:
         = 700*1000*1000 / (44100*64)
         = 248.
 
-For the FS (or WS) we expect this multiplied by 64.  If you set to a
-non-zero value you should get close.  If MASH=0 you'll see its way off.
-(This check saved me from a dumb mistake where I ignored MASH becasuse
-I didn't care about smoothing and so missed its role in using the
-DIVF part.)
+For the FS we expect this multiplied by 64.  If you set to a non-zero
+value you should get close.  If MASH=0 you'll see its way off.  (This
+check saved me from a dumb mistake where I ignored MASH becasuse I didn't
+care about smoothing and so missed its role in using the DIVF part.)
 
 ---------------------------------------------------------------
 ### 3. How to configure I2s.
@@ -372,8 +371,9 @@ Key rules:
     not the clock speed of the ARM!) needed for the operation to 
     occur.
 
-  - (p 125): the PCM registers start at 0x7e203000 and are given in the
-    table at the bottom of the page.  They at increasing word offsets.
+  - (p 125): the PCM registers start at 0x7e203000 (so for us:
+    0x20203000) and are given in the table at the bottom of the page.
+    They at increasing word offsets.
 
 For receiving mic data, the key bits of the CS_A register:
 
