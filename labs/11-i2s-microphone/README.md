@@ -223,15 +223,17 @@ The key bits in the control (page 107):
     looping the clock back and measuring how many cycles for each low
     or hi signal.
 
-  - bit 7: the BUSY flag: don't change the clock while this is set.
+  - bit 7: the BUSY flag: don't change the clock while this is set other
+    than to set ENAB=0.
+
   - bit 4: the ENAB flag.  You must disable the clock (ENAB=0)
     *and* wait til BUSY=0 before changing the clock.
 
   - bits 3-0: the clock source.  The basic idea is to pick a clock source
     that (1) is high enough to give a good signal and (2) hopefully
-    divides evenly into the clock value you want.  From the eratta
+    divides evenly by the clock value you actually want.  From the eratta
     and the bcm2835 i2s linux driver, the recommendation is to use the
-    "oscillator" (source = 0b0001) which is an XTAL crystal oscilating
+    "oscillator" (source = 0b0001) which is an XTAL crystal oscillating
     at 19.2MHz --- this is larger than the 2.8224MHz clock we need (good)
     but does not evenly divide it (sad).
 
