@@ -249,7 +249,7 @@ The key bits in the divisor register (page 108):
     105 Table 6-32 which (after eratta correction) gives the average
     output for a non-zero values of MASH as:
 
-      rate = clock source / (DIVI + DIVF / 4096)
+        rate = clock source / (DIVI + DIVF / 4096)
 
 <p align="center">
   <img src="images/clock-formula.png" width="600" />
