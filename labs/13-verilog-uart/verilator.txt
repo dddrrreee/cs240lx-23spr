@@ -1,0 +1,27 @@
+Verilator is a program that converts Verilog into C++ such that it can be
+simulated by writing a C++ program. You can convert a Verilog file to C++
+using
+
+    verilator -sv -cc file.sv
+
+This will generate a bunch of files in `obj_dir`. If you run
+
+    make -f Vfile.mk
+
+In `obj_dir`, this will build `Vfile__ALL.a`, which is the static library
+containing the compiled C++ representation of your circuit. Then you can link
+that with a C++ test harness (I usually call it `sim.cc`). An example test
+harness would include `Vfile.h` and `verilated.h`. You can then instantiate a
+Verilog module as a C++ object and set its input/output ports. Then use the
+`eval` function to evaluate the circuit. If you want to simulate a clock
+cycle, you have to set the clock to 0, run `eval`, set the clock to 1, and run
+`eval` again.
+
+You can also build Verilator programs directly via the Verilator command
+instead of having to separately compile your test harness. You can do this
+with the following command:
+
+    verilator -sv -cc file.sv --exe --build sim.cc -o sim
+
+By default the output will go in `obj_dir`, so you can use `-o ../sim` to put
+it in the current directory.
