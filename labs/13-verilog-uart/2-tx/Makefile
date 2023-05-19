@@ -12,6 +12,10 @@ VFLAGS += -DCLK_MHZ=48 --public
 include $(BOARDROOT)/rules.mk
 include $(ROOT)/verilator.mk
 
+screen:
+	screen /dev/ttyUSB0 19200
+.PHONY: screen
+
 clean:
 	$(BOARDCLEAN)
 	$(SIMCLEAN)
