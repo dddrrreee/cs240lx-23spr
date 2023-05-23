@@ -30,7 +30,7 @@ What to do:
 -----------------------------------------------------------------------
 ### Part 0: wire up the stepper 
 
-Wire up the board and the stepper using the [PRELAB](PRELAB.md).
+Wire up the board and the stepper using Alex's [PRELAB](PRELAB.md).
 One non-essential difference is that the PRELAB uses a nema 23 motor
 and we have nema 17.
 
