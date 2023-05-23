@@ -20,8 +20,15 @@ but you can skip all that stuff:
   - [a4988 stepper tutorial 1](https://lastminuteengineers.com/a4988-stepper-motor-driver-arduino-tutorial/)
   - [a4988 stepper tutorial 2](https://howtomechatronics.com/tutorials/arduino/stepper-motors-and-arduino-the-ultimate-guide/)
 
+##### Checkoff.
+
+What to do:
+  1. You can reliably rotate the stepper (Part 1).
+  2. You do a "reasonble" amount of the optional hacks --- this would be
+     a single one that you develop thoroughly, or just a few quick ones.
+
 -----------------------------------------------------------------------
-### Part 0: wire up the stepper
+### Part 0: wire up the stepper 
 
 Wire up the board and the stepper using the [PRELAB](PRELAB.md).
 One non-essential difference is that the PRELAB uses a nema 23 motor
@@ -37,7 +44,7 @@ After wiring everything up, you should be able to run the given test
 program from Alex which plays the USA anthem (sardonically appropriate
 given the current idiots pushing for nuclear war):
 
-    % staff-binary/stepper_test.bin 
+    % my-install staff-binary/stepper_test.bin 
 
 If this doesn't work, check with someone else!  There's a lot of miswiring
 that can happen.   We also have cheap knock-off A4988 IC's, so it's not
