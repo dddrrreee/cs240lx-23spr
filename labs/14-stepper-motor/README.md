@@ -197,7 +197,7 @@ You can see the key idea in the figure that shows ramp up and ramp down:
   <img src="images/stepper-accel.png" width="750" />
 </p>
 
-[*From Alex*]: Recommendations for highest speed: 
+[***From Alex***]: Recommendations for highest speed: 
   1. use your smallest microstepping option;
   2.  use delay_ncycles for finer granularity. 
   3. Also, be careful because the time which you delay between steps
