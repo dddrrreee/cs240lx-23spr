@@ -15,13 +15,12 @@ uint32_t timer_get_usec(void) {
     return u;
 }
 
+// call rpi_wait() while timer not expired ---
+// client can override this.
 void delay_us(uint32_t us) {
     uint32_t s = timer_get_usec();
-    while(1) {
-        uint32_t e = timer_get_usec();
-        if ((e - s) >= us)
-            return;
-    }
+    while((timer_get_usec() - s) < us)
+        rpi_wait();
 }
 
 // delay in milliseconds
