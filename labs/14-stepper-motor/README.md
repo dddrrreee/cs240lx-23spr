@@ -10,8 +10,9 @@ Fu for the first cs340lx: [Alex README](README-Alex.md).  Feel free to
 just use his lab and code (`alex-code`) --- it's much more thorough :).
 Certainly read through it for extension ideas!
 
-We'll first just get the stepper working in a simple way.  Then it's a
-choose your adventure --- there's a ton of interesting things to do.
+We'll first just get the stepper working in a simple way.  Then it's
+a choose your adventure --- there's a ton of interesting things to do.
+Ideally do a few of the options, or figure out your own.
 
 If you want further reading, in addition to Alex's lab, I thought these
 were two reasonable stepper motor writeups; they are "for arduino"
@@ -93,9 +94,8 @@ Note that losing steps error doesn't come from going too slow but too
 fast, so given a constant speed error that just makes you go more slowly
 is ok.
 
-
 -----------------------------------------------------------------------
-### Part 2: build a stepper UART
+### Option: build a stepper UART
 
 Use the motor to transmit using a very low baud rate.  Use the adc+mic
 from lab 8 to read the stepper noise.  You'll want to figure out the
@@ -106,31 +106,51 @@ from one to the other in the delay.  You may want to oversample (e.g.,
 read multiple per period) and perhaps discard values that are "too high"
 in case there is a burst of ambient noise.
 
-There is some basic code in `code-sw-uart`.  Two main programs:
+You should be able to take code from previous labs (e.g., the IR lab:
+`3-ir-bootloader`) for threading where one thread does a send and the
+other does a receive.
 
- - `interleave-example.c`: an example of how to interleave two routines
-   using your threads package.   Since we have cooperative threads and
-   one CPU we interleave by doing a yield whenever we are doing a 
-   busy wait (as you immediately expect: its easy to forget a yield!
-   So it's useful to write a checker).   We rely on the package being
-   round robin to schedule everything appropriately.
 
-   Alternatively we could interleave using interrupts.  Or, with less
-   state explosion: by interleaving calls to run-to-completion routines
-   rather than doing a thread yield.  (We may explore this later.)
+There's other ways to do things, but some suggestions:
+ 1. You have two pi's so can jump right to sending and receiving,
+    but it's easiest to develop everything using a loopback setup
+    where you have one thread receiving, one for sending, and you call
+    `rpi_wait()` or `rpi_yield()` to yield from one to the other while
+    they are delayed waiting for time to pass or for input.  Since we
+    have cooperative threads and one CPU we interleave by doing a
+    yield whenever we are doing a busy wait (as you immediately expect:
+    its easy to forget a yield!  So it's useful to write a checker ---
+    possible extension!).  We rely on the package being round robin to
+    schedule everything appropriately.
 
- - `measure-motor.c`: we use similar logic to use the ADC to measure
-   the motor while we are driving the stepper.  You'll need to rewrite
-   your `a4988.h` header to call the `delay_us_yield` routine (in
-   `delay-yield.h`) so that this works.
+    Alternatively we could interleave using interrupts.  Or, with less
+    state explosion: by interleaving calls to run-to-completion routines
+    rather than doing a thread yield.  (We may explore this later.)
 
-   I got around 13k for motor off and around 15k for motor on.  This
-   isn't a huge difference but should be enough to transmit bits.
+ 2. Measuring the ambient sound when the stepper is turning compared to 
+    not.  I'd be really crude and have the mic right by the stepper and
+    make sure the microphone level is different enough that you can
+    reliably get a 0 or 1.  An easy approach is to compute a running
+    average and then oversample on the receiver.  Given this you should
+    be able to send a 0 or 1 for your software UART code.
 
-You can run these by changing the `Makefile` target.
+ 3. If you want to get hella fancy, you can run an FFT on the stepper
+    output and transmit data by causing it to send different frequencies
+    that are far enough away that you get clean results.    You'd probably
+    want to learn the different rates that give you different frequencies
+    using loopback.  
 
-Given these examples you should hopefully (I haven't finished mine!)
-software uart that transmits bits using the motor.   
+    Sameer did this approach with speakers for his final 140e project
+    so it's worth talking to him for cheat codes.
+
+    I'd start with as slow as possible do you don't need to do ramp up
+    or slow down --- if you push things and need to do a ramp-up or
+    slow-down the frequencies will not be the same as the target and
+    they will likely alias with other target frequencies.
+
+Given some simple experimentation you should hopefully (I haven't finished
+mine!) be able to have a cool software uart that transmits bits using
+the motor.
 
 -----------------------------------------------------------------------
 ### Option: learn notes.
@@ -139,6 +159,84 @@ Use the stepper to make a note at a given frequency.  Pick this up with
 the adc+mic and do an fft to get the frequency.   Similar to the stepper
 UART except we need to be accurate about the frequency. Hopefully Parthiv
 can show us how to do this accurately!
+
+-----------------------------------------------------------------------
+### Option: acceleration.
+
+Once the stepper is up and running, it can go much faster than the speed
+you came up with in Part 1 to go starting from rest. 
+
+For machines that use steppers, time is money, so the common approach
+to going faster: you accelerate at a constant rate (meaured in increases
+in steps per second), go at a steady max velocity, and then decelerate
+at a constant rate.  If you are close to the limit of the motor the
+deceleration rate / time will obviously need to match the acceleration.
+The shape of this acceleration-constant-deceleration looks like a
+trapazoid, so that's the slang for this pattern.  (Optimal would look
+not quite as clean, but it's unclear how to derive optimal analytically.)
+
+Note that unlike with constant velocity, going "too slow" in terms of
+stepper interactions is no longer safe on the deceleration end.
+
+I don't have a good trick for this part.  So it'd be cool if you figure
+one out.  There's tons of kinda-too-abstract web pages and pdf's
+--- if you find a good one post to the newsgroup!  With that said,
+a lot of people seem to use this TI note on stepper acceleration:
+[stepper-accel](./docs/stepper-accel.pdf).
+
+From Alex: Recommendations for highest speed: use your smallest
+microstepping option, use delay_ncycles for finer granularity. Also,
+be careful because the time which you delay between steps isn't exactly
+equal to the psychical time between steps, since our step function takes
+time. My fastest speed (on a nema 17 motor--haven't tested with the nema
+23) was 8 usec (physical time, not delay time) per 16th step, or 2343
+rpm. As a comparison, with neither accelerations nor microstepping,
+my best rpm on that same motor was 336 rpm. For the nema 23: rpm 457
+vs 10 rpm. Maybe you can do better! (Note: another cool thing about
+steppers, *I think*, is that regardless of how fast they're spinning,
+they consume the same amount of power. It's very likely that I'm wrong,
+but based on steppers work, that's my impression).
+
+-----------------------------------------------------------------------
+### Option: Accelerometer [Alex]
+
+Make a 1D gimbal with your accel. If I'm [Alex] not mistaken, the accel
+measures forces that the chip feels. And since gravity is, well, gravity,
+we can use it as a reference point for determining orientation. So if
+we put things together like this:
+
+![accel stepper](images/accel_stepper.JPG) 
+
+Then we can program a self-balancing rig. My code is pretty simple:
+1. I read from the accel to get a "zero" reference point
+2. I begin a loop where I check the accel reading, compare it to the reference point, and then step in the appropriate direction to correct any movements. 
+3. Then I delay for ~40ms, because when the stepper is stepping (and for a little time afterwards) our accel's readings aren't what we want, since there are other forces besides gravity now acting on our stepper. 
+This way of doing things isn't the greatest, because there's a decent amount of lag in the position correcting, since we're not stepping fast enough due to the added delay (40ms between steps & 200 steps per rotation => 8 seconds per rev, very slow). Try to figure out something better than I did!
+
+-----------------------------------------------------------------------
+### Option: Microstepping [Alex]
+
+This one is very easy and pretty nice. Read up on how a4988 does
+microstepping (or look at image below). Makes your stepper a lot
+quieter and smoother. One challenge is that you lose speed, since your
+steps sizes are smaller (everything will be N times slower if you do N
+microsteps). You can counteract this by allowing your interrupt handler
+to trigger N times more often than it previously did.
+
+![microstepping](images/a4988_microstepping.png)
+
+You might also notice that we ony get 1/16th microsteps with this
+driver. Though that allows for pretty smooth control, theoretically we
+can get way better. Some drivers give 1/256 microsteps. (I think) we can
+"simulate" microsteps in software. The idea is that in a short period of
+time, we switch between stepping forwards and backwards very quickly. And
+if we're faster than the time it takes for the motor to complete a step,
+then the motor will hang in the middle, "between" steps. You can use
+this to get 1/2th microsteps and I think 1/32 microsteps if you set
+the hardware to already be in 1/16th microsteps. I think you can also
+use timings to get 1/Nth microsteps (if I step forwards for 75% of the
+time and backwards for 25% of the time, then I'll be in a 3/4ths step
+position?), but no clue if this is legit.
 
 -----------------------------------------------------------------------
 ### Option: use interrupts to do part 1.
@@ -188,85 +286,6 @@ re-enable, or by disabling too-long, etc.  Another way is to use a
 lock-free data structure such as a circular queue.
 
 Note: Alex's README and code has a ton of information for this approach.
-
------------------------------------------------------------------------
-### Option: acceleration.
-
-Once the stepper is up and running, it can go much faster than the speed
-you came up with in Part 1 to go starting from rest. 
-
-For machines that use steppers, time is money, so the common approach
-to going faster: you accelerate at a constant rate (meaured in increases
-in steps per second), go at a steady max velocity, and then decelerate
-at a constant rate.  If you are close to the limit of the motor the
-deceleration rate / time will obviously need to match the acceleration.
-The shape of this acceleration-constant-deceleration looks like a
-trapazoid, so that's the slang for this pattern.  (Optimal would look
-not quite as clean, but it's unclear how to derive optimal analytically.)
-
-Note that unlike with constant velocity, going "too slow" in terms of
-stepper interactions is no longer safe on the deceleration end.
-
-I don't have a good trick for this part.  So it'd be cool if you figure
-one out.  There's tons of kinda-too-abstract web pages and pdf's
---- if you find a good one post to the newsgroup!  With that said,
-a lot of people seem to use this TI note on stepper acceleration:
-[stepper-accel](./docs/stepper-accel.pdf).
-
-From Alex: Recommendations for highest speed: use your smallest
-microstepping option, use delay_ncycles for finer granularity. Also,
-be careful because the time which you delay between steps isn't exactly
-equal to the psychical time between steps, since our step function takes
-time. My fastest speed (on a nema 17 motor--haven't tested with the nema
-23) was 8 usec (physical time, not delay time) per 16th step, or 2343
-rpm. As a comparison, with neither accelerations nor microstepping,
-my best rpm on that same motor was 336 rpm. For the nema 23: rpm 457
-vs 10 rpm. Maybe you can do better! (Note: another cool thing about
-steppers, *I think*, is that regardless of how fast they're spinning,
-they consume the same amount of power. It's very likely that I'm wrong,
-but based on steppers work, that's my impression).
-
------------------------------------------------------------------------
-### Extension: Accelerometer [Alex]
-
-Make a 1D gimbal with your accel. If I'm not mistaken, the accel measures
-forces that the chip feels. And since gravity is, well, gravity, we can
-use it as a reference point for determining orientation. So if we put
-things together like this:
-
-![accel stepper](images/accel_stepper.JPG) 
-
-Then we can program a self-balancing rig. My code is pretty simple:
-1. I read from the accel to get a "zero" reference point
-2. I begin a loop where I check the accel reading, compare it to the reference point, and then step in the appropriate direction to correct any movements. 
-3. Then I delay for ~40ms, because when the stepper is stepping (and for a little time afterwards) our accel's readings aren't what we want, since there are other forces besides gravity now acting on our stepper. 
-This way of doing things isn't the greatest, because there's a decent amount of lag in the position correcting, since we're not stepping fast enough due to the added delay (40ms between steps & 200 steps per rotation => 8 seconds per rev, very slow). Try to figure out something better than I did!
-
------------------------------------------------------------------------
-### Extension: Microstepping [Alex]
-
-This one is very easy and pretty nice. Read up on how a4988 does
-microstepping (or look at image below). Makes your stepper a lot
-quieter and smoother. One challenge is that you lose speed, since your
-steps sizes are smaller (everything will be N times slower if you do N
-microsteps). You can counteract this by allowing your interrupt handler
-to trigger N times more often than it previously did.
-
-![microstepping](images/a4988_microstepping.png)
-
-You might also notice that we ony get 1/16th microsteps with this
-driver. Though that allows for pretty smooth control, theoretically we
-can get way better. Some drivers give 1/256 microsteps. (I think) we can
-"simulate" microsteps in software. The idea is that in a short period of
-time, we switch between stepping forwards and backwards very quickly. And
-if we're faster than the time it takes for the motor to complete a step,
-then the motor will hang in the middle, "between" steps. You can use
-this to get 1/2th microsteps and I think 1/32 microsteps if you set
-the hardware to already be in 1/16th microsteps. I think you can also
-use timings to get 1/Nth microsteps (if I step forwards for 75% of the
-time and backwards for 25% of the time, then I'll be in a 3/4ths step
-position?), but no clue if this is legit.
-
 
 -----------------------------------------------------------------------
 ### Extension: Do something cool [Alex]
