@@ -1,6 +1,10 @@
-// turn the motor in a circle in both directions.
-// if it's plugged in, it's hard to turn the shaft so unplug and rotate
-// to an easily verified position.
+// turn the motor in a circle in both directions N times.  this makes
+// it relatively simple to detect missed steps.
+//
+// if the motor is plugged in, it will be hard to turn the shaft.  so
+// with the motor unplugged from the wall, rotate the shaft
+// to an easily verified position (e.g., the flat part of the 
+// shaft facing up)
 #include "rpi.h"
 #include "a4988.h"
 
@@ -14,7 +18,7 @@ static void run_circle(step_t *s, int direction) {
 }
 
 void notmain(void) {
-    demand(dir_delay && step_delay, "must set these up");
+    demand(dir_delay && step_delay, must set these up);
 
     enum { dir = 21, step = 20 };
 
