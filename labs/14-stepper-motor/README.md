@@ -194,7 +194,7 @@ a lot of people seem to use this TI note on stepper acceleration:
 You can see the key idea in the figure that shows ramp up and ramp down:
 
 <p align="center">
-  <img src="images/stepper-accel.png" width="350" />
+  <img src="images/stepper-accel.png" width="550" />
 </p>
 
 
