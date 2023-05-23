@@ -191,8 +191,11 @@ one out.  There's tons of kinda-too-abstract web pages and pdf's
 a lot of people seem to use this TI note on stepper acceleration:
 [stepper-accel](./docs/stepper-accel.pdf).
 
-You can see the key idea in the figure that shows ramp up and ramp down
-<img src="images/stepper-accel.png" alt="stepper acceleration ramp" width="200"/>
+You can see the key idea in the figure that shows ramp up and ramp down:
+
+<p align="center">
+  <img src="images/stepper-accel.png" width="350" />
+</p>
 
 
 From Alex: Recommendations for highest speed: use your smallest
