@@ -89,4 +89,8 @@
     printk(args); \
 	clean_reboot();							\
 } while(0)
+
+#define exit_success(args...)  \
+    do { printk("SUCCESS:"); output(args); clean_reboot(); } while(0)
+
 #endif

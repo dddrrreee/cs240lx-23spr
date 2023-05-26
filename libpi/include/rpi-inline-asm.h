@@ -1,7 +1,8 @@
-#ifndef __RPI_INLINE_ASM_H__
-#define __RPI_INLINE_ASM_H__
+#ifndef __RPIX_INLINE_ASM_H__
+#define __RPIX_INLINE_ASM_H__
 // try to keep most of the inline assembly in this header
 // so it's easy to flip to another arch or fake pi.
+#include "asm-helpers.h"
 
 // get the status register.
 static inline uint32_t cpsr_get(void) {

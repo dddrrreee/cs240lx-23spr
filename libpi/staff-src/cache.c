@@ -1,4 +1,5 @@
 #include "rpi.h"
+#include "cpsr-util.h"
 #include "bit-support.h"
 
 void caches_enable(void) {

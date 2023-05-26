@@ -18,7 +18,7 @@ BOOTLOADER ?= pi-install
 MAKEFLAGS += --no-print-directory
 
 # we only look at this output
-GREP_STR ?= 'TRACE:\|ERROR:\|PANIC:' 
+GREP_STR ?= 'TRACE:\|ERROR:\|PANIC:\|SUCCESS:' 
 BOOT_CMD := $(BOOTLOADER) $(TTYUSB)
 
 # strip all bracketed tags in output messages

@@ -91,8 +91,6 @@ all:: $(RUN_MK) # $(TEST_RUN) # $(TEST_CHECK)
 # checks for everything.
 ifneq ($(CAN_EMIT), 0)
 emit: $(TEST_OUT) 
-else
-$(error "cannot emit: CAN_EMIT=$(CAN_EMIT)")
 endif
 
 check: $(TEST_CHECK)  

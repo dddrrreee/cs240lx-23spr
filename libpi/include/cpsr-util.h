@@ -5,6 +5,7 @@
 #include "rpi-constants.h"  // for the modes.
 #include "libc/bit-support.h"
 #include "rpi-inline-asm.h"
+#include "bit-support.h"
 
 static inline uint32_t spsr_get(void) {
     uint32_t spsr;
