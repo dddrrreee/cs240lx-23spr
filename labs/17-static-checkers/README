@@ -29,3 +29,14 @@ Do the lexer described in LEXER
 
 ### Part 2b: Compiler
 Do the compiler described in COMPILER
+
+### Part 3: Checkoff
+You should have:
+
+    - [ ] Prelab that matches my output on the prelab test_inputs
+    - [ ] ./build/lexer_tests passes
+    - [ ] ./build/lex_file test_inputs/mlme.c either matches the staff output
+          or is a better/also reasonable lexing
+    - [ ] Your checker has good SNR so it's easy to find 5--10 bugs in Linux
+    - [ ] Write a C file that causes your checker to have a false positive
+    - [ ] Write a C file that causes your checker to have a false negative
