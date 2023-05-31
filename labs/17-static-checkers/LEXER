@@ -51,3 +51,7 @@ lexer to mine.
     $ make build/lex_file
     $ ./build/lex_file test_inputs/mlme.c > mlme.lexed.c
     $ diff mlme.lexed.c test_inputs/mlme.lexed.staff.c
+
+If you match my lexer output on this test case you're probably good to go
+(*assuming* you've picked proper labels ...). You might even do a better job
+lexing than me :)
