@@ -30,7 +30,15 @@ Do the lexer described in LEXER
 ### Part 2b: Compiler
 Do the compiler described in COMPILER
 
-### Part 3: Checkoff
+### Part 3: Check the Linux Kernel
+If you're pretty confident your compiler & checker work, you can check the
+whole kernel like so:
+
+    $ git clone https://github.com/torvalds/linux.git linux
+    $ ./helper_scripts/check_repo.sh linux
+    ... bugs come out here ...
+
+### Part 4: Checkoff
 You should have:
 
     - [ ] Prelab that matches my output on the prelab test_inputs
