@@ -19,24 +19,24 @@ struct exprmap {
 // each of these should be ~5-10loc for a basic implementation. if you want to
 // go crazy, try keeping it sorted & using binary search (only once you have
 // everything working initially!).
-uint64_t lookup_exprmap(struct exprmap set, uint64_t expr) {
+uint64_t lookup_exprmap(const struct exprmap set, uint64_t expr) {
     // you can return 0 if you don't find anything
     assert(!"unimplemented");
 }
 
-struct exprmap insert_exprmap(struct exprmap old, uint64_t expr, uint64_t deref_label) {
+struct exprmap insert_exprmap(const struct exprmap old, uint64_t expr, uint64_t deref_label) {
     assert(!"unimplemented");
 }
 
-struct exprmap remove_exprmap(struct exprmap old, uint64_t expr) {
+struct exprmap remove_exprmap(const struct exprmap old, uint64_t expr) {
     assert(!"unimplemented");
 }
 
-int subset_exprmap(struct exprmap small, struct exprmap big) {
+int subset_exprmap(const struct exprmap small, const struct exprmap big) {
     assert(!"unimplemented");
 }
 
-struct exprmap intersect_exprmaps(struct exprmap small, struct exprmap big) {
+struct exprmap intersect_exprmaps(const struct exprmap small, const struct exprmap big) {
     assert(!"unimplemented");
 }
 
