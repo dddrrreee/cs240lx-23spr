@@ -48,3 +48,22 @@ You should have:
     - [ ] Your checker has good SNR so it's easy to find 5--10 bugs in Linux
     - [ ] Write a C file that causes your checker to have a false positive
     - [ ] Write a C file that causes your checker to have a false negative
+
+### Part 5: Extensions
+You could ...
+
+    - Fiddle with the compiler to improve the SNR
+    - Implement different checks
+        - E.g., an easy one to adapt this checker to: look for cases where you
+          free(x) on every path before reaching a dereference *x.
+    - Our compiler is super janky; I think you can probably simplify the code
+      and improve robustness of the parser by writing some kind of
+      PEG-with-actions library/DSL
+    - Write a compiler from another language (unsafe rust? c++? go?)
+    - Run it on different codebases (freebsd tends to have a bunch of these
+      bugs)
+    - Compare SNR to just asking ChatGPT
+    - Try reducing false positives by feeding each bug report to ChatGPT and
+      asking it if it's a true bug or not
+    - Pick one or two bug reports that look like true positives & track down
+      Why the existing kernel checkers didn't catch it
