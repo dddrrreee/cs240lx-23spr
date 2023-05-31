@@ -47,6 +47,15 @@ checker from the prelab only accepts one IR block at a time. The helper script
 helper_scripts/check_file.py will automatically separate these blocks and call
 the prelab checker once for each block. In other words, don't worry about it.
 
+The compilation approach we'll use here is vaguely inspired by
+https://legacy.cs.indiana.edu/~dyb/pubs/ddcg.pdf although _significantly_
+jankier.
+
+One big thing to keep in mind: we're not going to be able to handle all the
+minutiae of the C language, and we're not even really going to try. We're just
+going to try to handle the 90% common case as well as possible in a reasonable
+code budget, then fiddle with it afterwards to reduce false positives.
+
 ### Compiler Starter Code Walkthrough
 I'm giving a pretty significant chunk of starter code to get you going. You're
 welcome to start from scratch if you prefer. But if not, read on ...

@@ -15,10 +15,12 @@ must be wrong.
 
 We're going to vaguely be implementing a small part of this:
 https://mlfbrown.com/paper.pdf
+Combined with a little bit of this:
+https://legacy.cs.indiana.edu/~dyb/pubs/ddcg.pdf
 
-But our implementation will be in two parts: first, a checker that runs on a
-super simplified IR (the prelab). Second, a compiler from C to that IR (the
-main lab). I'll provide some helper scripts to hook them up together and
+Our implementation will be in two parts: first, a checker that runs on a super
+simplified IR (the prelab). Second, a compiler from C to that IR (the main
+lab). I'll provide some helper scripts to hook them up together and
 pretty-print the results.
 
 ### Part 1: Prelab
