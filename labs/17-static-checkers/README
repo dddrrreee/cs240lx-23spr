@@ -1,8 +1,31 @@
+### Ultimate Lab Goal
+As you've learned in this class, it's hard to write C correctly.  And operating
+systems are huge C projects.  In this lab we're going to implement a simple
+static checker that will help us automatically search for bugs in huge C
+projects. Our checker will find C code that looks like this:
+
+    *x = 5;
+    if (x)
+        return;
+
+This code indicates a bug, because on the first line you dereference $x$ (i.e.,
+requiring that it is non-null) then on the second line you check if $x$ is null
+or not (i.e., asserting a belief that it may be null). One of these beliefs
+must be wrong.
+
+We're going to vaguely be implementing a small part of this:
+https://mlfbrown.com/paper.pdf
+
+But our implementation will be in two parts: first, a checker that runs on a
+super simplified IR (the prelab). Second, a compiler from C to that IR (the
+main lab). I'll provide some helper scripts to hook them up together and
+pretty-print the results.
+
 ### Part 1: Prelab
 Do the prelab described in prelab/README
 
-### Part 2: Lexer
+### Part 2a: Lexer
 Do the lexer described in LEXER
 
-### Part 3: Compiler
+### Part 2b: Compiler
 Do the compiler described in COMPILER
