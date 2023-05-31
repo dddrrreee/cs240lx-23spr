@@ -1,5 +1,8 @@
 ##### Ultimate Lab Goal
-Our goal is to find C code that looks like this:
+As you've learned in this class, it's hard to write C correctly.  And operating
+systems are huge C projects.  In this lab we're going to implement a simple
+static checker that will help us automatically search for bugs in huge C
+projects. Our checker will find C code that looks like this:
 
     *x = 5;
     if (x)
@@ -9,6 +12,9 @@ This code indicates a bug, because on the first line you dereference $x$ (i.e.,
 requiring that it is non-null) then on the second line you check if $x$ is null
 or not (i.e., asserting a belief that it may be null). One of these beliefs
 must be wrong.
+
+We're going to vaguely be implementing this:
+https://mlfbrown.com/paper.pdf
 
 ##### How to do it?
 Given a function, our game plan is the following:
