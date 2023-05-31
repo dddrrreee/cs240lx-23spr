@@ -24,31 +24,30 @@ brevity, I'll write this as:
     visit(1, {})
 
 From here on out, the operation of visit looks like this:
-    
+(NOTE: I'm currently debugging this trace ...)
+
     visit(1, {})
     |   1.always_derefed = {}
     |   visit(2, {100})
     |   |   2.always_derefed = {100}
     |   |   visit(3, {100})
     |   |   |   3.always_derefed = {100}
-    |   |   |   visit(4, {100})
-    |   |   |   |   4.always_derefed = {100}
+    |   |   |   visit(4, {})
+    |   |   |   |   4.always_derefed = {}
     |   |   |   |   visit(2, {})
     |   |   |   |   |   2.always_derefed = intersect({100}, {}) = {}
     |   |   |   |   |   visit(3, {})
     |   |   |   |   |   |   3.always_derefed = intersect({100}, {}) = {}
     |   |   |   |   |   |   visit(4, {})
-    |   |   |   |   |   |   |   4.always_derefed = intersect({100}, {}) = {}
-    |   |   |   |   |   |   |   visit(2, {})
-    |   |   |   |   |   |   |   |   return bc 2.always_derefed <= {}
-    |   |   |   |   |   |   |   visit(2, {})
-    |   |   |   |   |   |   |   |   return bc 2.always_derefed <= {}
+    |   |   |   |   |   |   |   return bc 4.always_derefed <= {}
     |   |   |   |   |   |   visit(NULL, {})
     |   |   |   |   |   |   |   return bc NULL
     |   |   |   |   |   visit(4, {})
     |   |   |   |   |   |   return bc 4.always_derefed <= {}
     |   |   |   |   visit(2, {})
     |   |   |   |   |   return bc 2.always_derefed <= {}
+    |   |   |   visit(NULL, {100})
+    |   |   |   |   return bc NULL
     |   |   visit(4, {100})
     |   |   |   return bc 4.always_derefed <= {100}
     |   visit(NULL, {100})
