@@ -82,9 +82,12 @@ implementing the exprmap data structure:
       first dereferenced on.
     - Exprmaps are usually pretty small, so we implement them as a pair of
       dynamic arrays
-    - lookup_exprmap, insert_exprmap, remove_exprmap, intersect_exprmap do what
-      they sound like. Note you should always return a fresh exprmap if you
-      change anything; NEVER MODIFY exprmaps IN-PLACE!
+    - lookup_exprmap, insert_exprmap, remove_exprmap do what they sound like.
+      Note you should always return a fresh exprmap if you change anything;
+      NEVER MODIFY exprmaps IN-PLACE! Note that because you never modify
+      exprmaps in-place, copying exprmaps is super easy: just copy the struct!
+    - intersect_exprmap intersects the keys (exprs); you can take the value
+      (deref_label) from either one.
     - subset_exprmap returns true iff the keys of "small" are all also keys of
       "big"
 
