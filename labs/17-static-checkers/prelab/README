@@ -102,6 +102,11 @@ implementing the exprmap data structure:
 Now, you should be able to implement visit. At a high-level, visit is supposed
 to statically execute a single instruction along a path through the program:
 
+    - the entire overall point of visit is to compute instr->always_derefed for
+      every (reachable) instruction in the program. instr->always_derefed
+      should hold an exprmap of expressions that are known to be non-null along
+      every path to @instr, i.e., expressions that are always dereferenced
+      before reaching @instr.
     - visit takes the instruction to be executed next (@instr) along with an
       exprset of expressions that have been dereferenced along this path
       (@derefed).
