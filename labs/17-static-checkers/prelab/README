@@ -1,0 +1,142 @@
+##### Ultimate Lab Goal
+Our goal is to find C code that looks like this:
+
+    *x = 5;
+    if (x)
+        return;
+
+This code indicates a bug, because on the first line you dereference $x$ (i.e.,
+requiring that it is non-null) then on the second line you check if $x$ is null
+or not (i.e., asserting a belief that it may be null). One of these beliefs
+must be wrong.
+
+##### How to do it?
+Given a function, our game plan is the following:
+
+    - Take every possible path through the function.
+    - During the path, track what expressions *must* be non-null because we've
+      dereferenced them earlier in the path.
+    - At each program point, record what expressions must be non-null along
+      *every* path that reaches that point.
+    - Finally, look at each branch point and report an error if it is branching
+      on an expression that must be non-null along every path that reaches that
+      point.
+
+##### Prelab Setup
+For this prelab, we're going to start by implementing this analysis on a
+simplified intermediate representation (IR) instead of C. Then, for the main
+lab, we'll write a compiler from C to this IR.
+
+A program in our IR has one instruction per line. Everything after the
+instruction on a given line is ignored (think of those as comments or
+metadata).
+
+The IR has three instructions:
+
+    $label B $expression $label_true $label_false [ignored until \n]
+    $label K $expression [ignored until \n]
+    $label D $expression [ignored until \n]
+
+In particular:
+    - Every instruction has a "label:" think of this as a pc or line number
+    - "B" means BRANCH, "K" means KILL, and "D" means DEREF
+    - Labels and expressions are both represented as uint64_ts
+    - "$l B $e $t $f" corresponds to "if ($e) goto $t else goto $f"
+    - "$l K $e" corresponds to "$e = rand();"
+    - "$l D $e" corresponds to "*$e;"
+
+The C example above will become (roughly) this IR:
+
+    1 D 100
+    2 B 100 3 4
+    3 K 0
+    4 K 0
+
+Here we arbitrarily chose "100" to be the id representing the expression "x",
+and 0 is a dummy expression so that "K 0" always acts like a no-op.
+
+##### Prelab/Lab Part 1
+Your job is to write the program analysis for the simple IR described above.
+Some starter code for parsing the IR is given in main.c. You should be able to
+implement everything in <200loc. The vast majority of the code is just
+implementing the exprmap data structure:
+
+    STRUCT EXPRMAP:
+    - A struct exprmap is a map from uint64_t -> uint64_t. The keys ("exprs")
+      will represent expressions that we know to be non-null, while the values
+      ("deref_labels") will represent the label that those expressions were
+      first dereferenced on.
+    - Exprmaps are usually pretty small, so we implement them as a pair of
+      dynamic arrays
+    - lookup_exprmap, insert_exprmap, remove_exprmap, intersect_exprmap do what
+      they sound like. Note you should always return a fresh exprmap if you
+      change anything; NEVER MODIFY exprmaps IN-PLACE!
+    - subset_exprmap returns true iff the keys of "small" are all also keys of
+      "big"
+
+Now, you should be able to implement visit. The comments should tell you pretty
+much what to do. Two important things to take advantage of to make sure you
+don't get infinite recursion:
+
+    1. We only care about expressions that are known to be non-null along
+       *EVERY* path to this instruction. So if the last time you visited some
+       instruction you had expressions 1 and 2 non-null, then on the current
+       path to that instruction you have expressions 2 and 3 non-null, you
+       should treat it as if only 2 is non-null.
+    2. The entire behavior of the visit function is determined by (1) the
+       instruction passed in the first argument, and (2) the exprset of
+       non-nulls passed in the second argument. So if the last time you visited
+       a particular instruction you had expressions 1 and 2 non-null, and along
+       this current path you re-visit the instruction again with expressions 1
+       and 2 non-null, you can immediately return (this call is memoized).
+
+Think carefully about in what order to apply hints (1) and (2). Write some
+example programs for yourself that use loops and think about how the
+computation proceeds & when you can terminate the recursion without ignoring
+possible paths.
+
+Some things to keep in mind:
+
+    - We want to minimize the number of false reports. If you think about it,
+      that means you can safely "forget" that things have been dereferenced.
+      This is safe because we only report an error if we always dereference a
+      value before we check it, so if we forget about a dereference we will
+      only ever forget to report an error, not report a fake error.
+    - Because of that, you should feel free to pretty liberally intersect
+      derefed (the set of expressions dereferenced along this path) and
+      instr->always_derefed (the set of expressions that are derefed along
+      every path to this instruction that we've seen so far).
+    - Finally, please remember that visit(instr, derefed) is a *recursive
+      function*: it's supposed to process a single instruction at a time, then
+      recurse on the possible next instructions. This means that you can
+      memoize it: if instr->always_derefed is identical to derefed, that means
+      you've already visited @vist with the same arguments, so you can
+      immediately return without recursing.
+
+##### Testing
+There's a super dumb test case in test.prog. You should be able to run:
+
+    $ cat test_inputs/test.prog
+    1 D 123
+    2 B 1 3 3
+    3 B 123 1 4
+    4 D 100
+    5 K 100
+    6 B 100 7 7
+    7 D 100
+    8 B 100 7 7
+    $ cat test_inputs/test.prog | ./main
+    7:8
+    1:3
+
+Every line in the output indicates a bug, i.e., some expression was branched on
+even though it is dereferenced along every path to that branch. The first
+number is the label of the deref instructions, the second is the label of the
+branch instruction. Note that 4:6 is NOT a bug, because the value of 100 was
+overwritten ("killed") at label 5.
+
+I've also posted two files compiled from Linux here:
+
+    $ cat test_inputs/linux1.prog | ./main
+    $ cat test_inputs/linux2.prog | ./main
+    28:35
