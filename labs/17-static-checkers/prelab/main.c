@@ -94,6 +94,8 @@ int main() {
         struct instr *new = calloc(1, sizeof(*new));
         char opcode;
         if (scanf(" %lu %c", &(new->label), &opcode) != 2) {
+            // if this is failing unexpectedly, and you're on a Mac, maybe just
+            // remove it? still seemed to work for Manya
             assert(feof(stdin));
             break;
         }
