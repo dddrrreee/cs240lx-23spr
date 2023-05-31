@@ -99,9 +99,22 @@ implementing the exprmap data structure:
     - subset_exprmap returns true iff the keys of "small" are all also keys of
       "big"
 
-Now, you should be able to implement visit. The comments should tell you pretty
-much what to do. Two important things to take advantage of to make sure you
-don't get infinite recursion:
+Now, you should be able to implement visit. At a high-level, visit is supposed
+to statically execute a single instruction along a path through the program:
+
+    - visit takes the instruction to be executed next (@instr) along with an
+      exprset of expressions that have been dereferenced along this path
+      (@derefed).
+    - it then updates the "always_derefed" exprmap on @instr, which is supposed
+      to represent the expressions that are *always* dereferenced along every
+      path we've seen to this node.
+    - it computes the new @derefed to use for the rest of this path after
+      executing this instruction.
+    - then it recurses on all the possible instructions we could execute next
+      along this path.
+
+The comments should tell you pretty much what to do. Two important things to
+take advantage of to make sure you don't get infinite recursion:
 
     1. We only care about expressions that are known to be non-null along
        *EVERY* path to this instruction. So if the last time you visited some
