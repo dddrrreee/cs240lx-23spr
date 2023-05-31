@@ -1,0 +1,53 @@
+#### visit example
+Take the following IR program:
+
+    1 D 100
+    2 B 100 3 4
+    3 K 100
+    4 B 0 2 2
+
+This corresponds roughly to the C code:
+
+    L1: *x;
+    L2: while (x)
+    L3:    x = rand();
+
+First, notice that this is *not* a bug: there are some paths along which 100/x
+is dereferenced before reaching the branch (namely, 1->2 in the IR and L1->L2
+in the C) and other branches where its value is *not* dereferenced first
+(namely, 1->2->3->4->2 and L1->L2->L3->L2).
+
+The prelab tool only sees the IR. The main() function makes the initial call
+to visit for you, giving it the first instruction and an empty exprmap. For
+brevity, I'll write this as:
+
+    visit(1, {})
+
+From here on out, the operation of visit looks like this:
+    
+    visit(1, {})
+        1.always_derefed = {}
+        visit(2, {100})
+            2.always_derefed = {100}
+            visit(3, {100})
+                3.always_derefed = {100}
+                visit(4, {100})
+                    4.always_derefed = {100}
+                    visit(2, {})
+                        2.always_derefed = intersect({100}, {}) = {}
+                        visit(3, {})
+                            3.always_derefed = intersect({100}, {}) = {}
+                            visit(4, {})
+                                4.always_derefed = intersect({100}, {}) = {}
+                                visit(2, {})
+                                    return bc 2.always_derefed <= {}
+                                visit(2, {})
+                                    return bc 2.always_derefed <= {}
+                            visit(NULL, {})
+                                return bc NULL
+                        visit(4, {})
+                            return bc 4.always_derefed <= {}
+                    visit(2, {})
+                        return bc 2.always_derefed <= {}
+            visit(3, {100})
+                return bc 3.always_derefed <= {100}

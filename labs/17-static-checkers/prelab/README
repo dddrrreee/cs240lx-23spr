@@ -151,6 +151,9 @@ Some things to keep in mind:
       you've already visited @vist with the same arguments, so you can
       immediately return without recursing.
 
+If you have trouble with visit, you can take a look at HINTS, which shows a
+trace of visit's execution on a simple IR program.
+
 ##### Testing
 There's a super dumb test case in test.prog. You should be able to run:
 
