@@ -5,6 +5,10 @@ CFLAGS += -O3
 CFLAGS += -I.
 # CFLAGS += -fsanitize=address
 
+build/compiler: compiler.c lexer.c main.c utils.c
+	mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) $^ -o $@
+
 build/lexer_tests: lexer.c helper_scripts/lexer_tests.c
 	mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $^ -o $@

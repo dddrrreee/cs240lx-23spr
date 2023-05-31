@@ -18,6 +18,7 @@ For example, we might have:
         while (x)
             x = 6;
     }
+    $ make build/compiler
     $ ./build/compiler test_inputs/simple_if.c
     ~~~
     3 D 177693 2

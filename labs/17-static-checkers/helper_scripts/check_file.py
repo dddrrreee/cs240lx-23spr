@@ -4,7 +4,7 @@ import subprocess
 if sys.argv[1].endswith("_table.c"):
     sys.exit(0)
 
-output = subprocess.check_output(["./nanochex", sys.argv[1]]).decode("utf-8")
+output = subprocess.check_output(["./build/compiler", sys.argv[1]]).decode("utf-8")
 functions = output.split("~~~\n")
 
 any_error = False
