@@ -92,11 +92,12 @@ int main() {
     size_t n_instructions = 0, max_label = 0;
     while (!feof(stdin)) {
         struct instr *new = calloc(1, sizeof(*new));
-        if (scanf("%lu %c", &(new->label), &(new->opcode)) != 2) {
+        char opcode;
+        if (scanf(" %lu %c", &(new->label), &opcode) != 2) {
             assert(feof(stdin));
-            free(new); // shut the asan up
             break;
         }
+        new->opcode = opcode;
         int n_args = (new->opcode == OPCODE_BRANCH) ? 3 : 1;
         for (size_t i = 0; i < n_args; i++)
             scanf(" %lu", &(new->args[i]));
@@ -110,7 +111,6 @@ int main() {
     size_t n_labels = max_label + 1;
     struct instr **label2instr = calloc(n_labels, sizeof(*label2instr));
 
-    size_t i = 0;
     for (struct instr *instr = head; instr; instr = instr->nexts[0]) {
         assert(!label2instr[instr->label]);
         label2instr[instr->label] = instr;
