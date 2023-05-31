@@ -51,3 +51,13 @@ From here on out, the operation of visit looks like this:
     |   |   |   return bc 4.always_derefed <= {100}
     |   visit(NULL, {100})
     |   |   return bc NULL
+
+It's important to note a few things:
+1. Each branch in this trace corresponds to a path through the original IR
+   program.
+2. We sometimes reach "NULL", because non-branch instructions have only one
+   place they can go after executing (you could also check for NULL before
+   recursing).
+3. If always_derefed is a subset of the expressions derefed along this path, we
+   know that we're not going to learn anything new along this path that we
+   didn't already learn along another path, so we can immediately return.
