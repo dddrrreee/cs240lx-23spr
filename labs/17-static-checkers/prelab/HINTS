@@ -24,7 +24,6 @@ brevity, I'll write this as:
     visit(1, {})
 
 From here on out, the operation of visit looks like this:
-(NOTE: I'm currently debugging this trace ...)
 
     visit(1, {})
     |   1.always_derefed = {}
