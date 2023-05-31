@@ -64,6 +64,11 @@ using uint64_ts to represent expressions like "x" because uint64_ts are much
 nicer to deal with in C than strings. The compiler that we write for lab will
 use hash("x") as the expression id.
 
+Once again, for now, don't worry about where these programs come from: we'll
+write a compiler from C to this IR during lab. Then scripts will link up the
+output of the IR checker with the original source code to pretty-print the
+resulting bugs.
+
 ##### Prelab/Lab Part 1
 Your job is to write the program analysis for the simple IR described above.
 Some starter code for parsing the IR is given in main.c. You should be able to
