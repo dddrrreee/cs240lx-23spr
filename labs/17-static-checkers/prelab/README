@@ -13,7 +13,7 @@ requiring that it is non-null) then on the second line you check if $x$ is null
 or not (i.e., asserting a belief that it may be null). One of these beliefs
 must be wrong.
 
-We're going to vaguely be implementing this:
+We're going to vaguely be implementing a small part of this:
 https://mlfbrown.com/paper.pdf
 
 ##### How to do it?
@@ -44,7 +44,8 @@ The IR has three instructions:
     $label D $expression [ignored until \n]
 
 In particular:
-    - Every instruction has a "label:" think of this as a pc or line number
+
+    - Every instruction has a "$label" think of this as a pc or line number
     - "B" means BRANCH, "K" means KILL, and "D" means DEREF
     - Labels and expressions are both represented as uint64_ts
     - "$l B $e $t $f" corresponds to "if ($e) goto $t else goto $f"
@@ -53,10 +54,10 @@ In particular:
 
 The C example above will become (roughly) this IR:
 
-    1 D 100
-    2 B 100 3 4
-    3 K 0
-    4 K 0
+    1 D 100         1
+    2 B 100 3 4     2
+    3 K 0           3
+    4 K 0           3
 
 Here we arbitrarily chose "100" to be the id representing the expression "x",
 and 0 is a dummy expression so that "K 0" always acts like a no-op. Note we're
@@ -64,10 +65,17 @@ using uint64_ts to represent expressions like "x" because uint64_ts are much
 nicer to deal with in C than strings. The compiler that we write for lab will
 use hash("x") as the expression id.
 
+The rightmost number is IGNORED by your code here; it indicates the line number
+in the original program and will only be used by a final wrapper script that
+pretty-prints the results. We will only worry about this during the main lab.
+
 Once again, for now, don't worry about where these programs come from: we'll
 write a compiler from C to this IR during lab. Then scripts will link up the
 output of the IR checker with the original source code to pretty-print the
 resulting bugs.
+
+Internally, an instruction like "2 B 100 3 4" is represented as a struct instr,
+where .label = 2, .opcode = OPCODE_BRANCH, and .args = {100, 3, 4}.
 
 ##### Prelab/Lab Part 1
 Your job is to write the program analysis for the simple IR described above.
