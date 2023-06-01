@@ -103,7 +103,7 @@ int main() {
         new->opcode = opcode;
         int n_args = (new->opcode == OPCODE_BRANCH) ? 3 : 1;
         for (size_t i = 0; i < n_args; i++)
-            scanf(" %lu", &(new->args[i]));
+            assert(scanf(" %lu", &(new->args[i])) == 1);
         new->nexts[0] = head;
         head = new;
         n_instructions++;
