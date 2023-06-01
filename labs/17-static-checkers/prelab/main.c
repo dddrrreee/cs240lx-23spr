@@ -73,6 +73,7 @@ void visit(struct instr *instr, struct exprmap derefed) {
     // now recurse on the possible next-instructions. we visit nexts[1] first
     // out of superstition (it's more likely to be NULL and we want to do the
     // most work in the tail recursive call)
+    derefed = instr->always_derefed; // feel free to remove if your sln doesn't need this
     visit(instr->nexts[1], derefed);
     visit(instr->nexts[0], derefed);
 }
