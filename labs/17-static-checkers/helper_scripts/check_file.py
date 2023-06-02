@@ -10,12 +10,12 @@ functions = output.split("~~~\n")
 any_error = False
 for function in map(str.strip, functions):
     if not function: continue
-    if len(sys.argv) > 2:
-        open("/tmp/hi.prog", "w").write(function + "\n")
     try:
         output = subprocess.check_output(["./prelab/main"], input=function, encoding="utf-8")
     except subprocess.CalledProcessError:
         if any_error: continue
+        if len(sys.argv) > 2:
+            open("/tmp/hi.prog", "w").write(function + "\n")
         print(f"error {sys.argv[1]}")
         any_error = True
         continue
