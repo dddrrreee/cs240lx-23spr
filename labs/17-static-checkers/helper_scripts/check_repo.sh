@@ -12,7 +12,7 @@ find $1 -name '*.c' > $listpath
 resultpath=$(mktemp)
 parallel --progress --eta --bar -a $listpath "python3 helper_scripts/check_file.py" > $resultpath
 
-python3 collate.py $resultpath
+python3 helper_scripts/collate.py $resultpath
 
 rm $listpath
 rm $resultpath
