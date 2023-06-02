@@ -27,14 +27,18 @@ also store a few other things on our lexemes:
 I've given most of a lexer in lexer.c. Your job is to add rules that lex the
 following types of tokens:
 
-    - [ ] string literals
-    - [ ] character literals
-    - [ ] hex literals
-    - [ ] int literals
-    - [ ] identifiers (including 'foo', 'if', 'for', ...)
+    - [ ] string literals -> not ident or op
+    - [ ] character literals -> not ident or op
+    - [ ] hex literals 0x1234 -> not ident or op
+    - [ ] int literals -> not ident or op
+    - [ ] identifiers (including 'foo', 'if', 'for', ...) -> label ident
 
 Note that the code to insert into the lexeme array is given to you; you just
 need to set the @s pointer and @label value properly.
+
+NOTE: If you're not lexing whitespace (I do it for you, so you shouldn't be)
+then you want to set @s to one past the last character that you want to be part
+of the lexeme.
 
 ##### Testing the lexer
 As an initial test, you can:

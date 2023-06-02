@@ -36,7 +36,7 @@ Do the compiler described in COMPILER
 If you're pretty confident your compiler & checker work, you can check the
 whole kernel like so:
 
-    $ git clone https://github.com/torvalds/linux.git linux
+    $ git clone --depth=1 https://github.com/torvalds/linux.git linux
     $ ./helper_scripts/check_repo.sh linux
     ... bugs come out here ...
 

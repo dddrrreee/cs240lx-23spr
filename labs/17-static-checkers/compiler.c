@@ -308,7 +308,7 @@ void visit_expr(struct lexrange range, struct meta meta) {
             nop_labelled(first_true);
             visit_expr(torange(op + 1, rm), og_meta);
             if (!og_meta.false_branch)
-                    nop_labelled(either_false);
+                nop_labelled(either_false);
         } else if (LEXSTR(op, "||")) {
             assert(!"unimplemented");
         } else if (lm != op && op != rm) {

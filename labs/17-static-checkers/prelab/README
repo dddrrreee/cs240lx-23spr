@@ -186,3 +186,6 @@ I've also posted two files compiled from Linux here:
     $ cat test_inputs/linux1.prog | ./main
     $ cat test_inputs/linux2.prog | ./main
     28:35
+
+### Bugs
+make sure to kill all dups or don't insert dups
